@@ -22,5 +22,8 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 # 
 COPY ./FT_api /code/FT_api
 
+#
+COPY ./server.py /code/server.py
+
 # 
-CMD ["uvicorn", "app.main:FT_api", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+CMD python /code/server.py
