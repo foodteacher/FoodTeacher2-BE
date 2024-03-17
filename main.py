@@ -1,15 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from FT_api.db.session import Base, engine
 
 
-app = FastAPI()
+# app 생성
+# def create_tables():
+#     Base.metadata.create_all(bind=engine)
+
+# def get_application():
+#     FT_api = FastAPI()
+#     create_tables()
+#     return FT_api
+
+FT_api = FastAPI()
 
 origins = [
     "http://localhost:3000",
     "https://foodteacher.xyz",
-    "https://www.foodteacher.xyz",
 ]
-app.add_middleware(
+FT_api.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
@@ -18,6 +27,6 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@FT_api.get("/")
 def read_root():
     return "hello, 팩트폭행단~!"
