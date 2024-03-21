@@ -1,7 +1,5 @@
-from datetime import timedelta
-from typing import List
-
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
@@ -18,23 +16,28 @@ router = APIRouter()
 settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
-@router.post('/login')
-async def kakaoAuth(authorization_code: KakaoCode, request: Request, db: Session = Depends(get_db)) -> Token:
+@router.post('/kakao')
+async def kakaoAuth(authorization_code: KakaoCode, request: Request, db: Session = Depends(get_db)):
     kakao_token = get_kakao_token(authorization_code=authorization_code, request=request)
     kakao_access_token = kakao_token.get("access_token")
     kakao_refresh_token = kakao_token.get("refresh_token")
 
     kakao_id = get_kakao_id(kakao_access_token)
-    user = crud_user.get_by_kakao_id(db, kakao_id=kakao_id)
     jwt = get_jwt(db=db, kakao_id=kakao_id)
-    if user:
-        new_user = UserUpdate(kakao_access_token=kakao_access_token, kakao_refresh_token=kakao_refresh_token, jwt_refresh_token=jwt.refresh_token)
-        crud_user.update(db=db, db_obj=user, obj_in=new_user)
-        return jwt
     
-    new_user = UserCreate(kakao_id=kakao_id, kakao_access_token=kakao_access_token, kakao_refresh_token=kakao_refresh_token, jwt_refresh_token=jwt.refresh_token)
-    create_user(db=db, new_user=new_user)
-    return jwt
+    # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
+    response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
+    response.set_cookie(
+        key="refresh_token",
+        value=jwt.refresh_token,
+        httponly=True,  # 클라이언트 사이드 스크립트에서 접근 불가능하도록 설정
+        max_age=1800,  # 쿠키 유효 시간 (예: 1800초 = 30분)
+        expires=1800,
+        # samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
+        # secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
+    )
+    
+    return response
 
 def get_kakao_token(authorization_code: KakaoCode, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
