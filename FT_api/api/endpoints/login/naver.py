@@ -7,7 +7,7 @@ from FT_api.core.security import get_jwt
 from FT_api.db.session import get_db
 from FT_api.schemas.token import Token
 from FT_api.schemas.login import AuthCode
-from FT_api.schemas.user import UserUpdate, UserCreate
+from FT_api.schemas.user import UserCreate
 from FT_api.crud.user import crud_user
 
 import requests
@@ -18,7 +18,7 @@ settings = get_setting()
 # 엑세스 토큰을 저장할 변수
 @router.post('/naver')
 async def naver_auth(authorization_code: AuthCode, request: Request, db: Session = Depends(get_db)):
-    kakao_token = get_kakao_token(authorization_code=authorization_code, request=request)
+    kakao_token = get_naver_token(authorization_code=authorization_code, request=request)
     kakao_access_token = kakao_token.get("access_token")
     kakao_refresh_token = kakao_token.get("refresh_token")
 
@@ -39,7 +39,7 @@ async def naver_auth(authorization_code: AuthCode, request: Request, db: Session
     
     return response
 
-def get_kakao_token(authorization_code: AuthCode, request: Request):
+def get_naver_token(authorization_code: AuthCode, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     scheme = request.headers.get('x-forwarded-for')
     if scheme == '34.125.247.54':
@@ -48,7 +48,7 @@ def get_kakao_token(authorization_code: AuthCode, request: Request):
         REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     
     # REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
-    _url = f'https://kauth.kakao.com/oauth/token'
+    _url = 'https://nid.naver.com/oauth2.0/token'
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
     }
