@@ -17,13 +17,21 @@ settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
 @router.post('/naver')
-async def naver_auth(authorization_code: AuthCode, request: Request, db: Session = Depends(get_db)):
-    kakao_token = get_naver_token(authorization_code=authorization_code, request=request)
-    kakao_access_token = kakao_token.get("access_token")
-    kakao_refresh_token = kakao_token.get("refresh_token")
+async def naver_Auth(authorization_code: AuthCode, request: Request, db: Session = Depends(get_db)):
+    naver_token = get_naver_token(authorization_code=authorization_code, request=request)
+    naver_access_token = naver_token.get("access_token")
+    naver_refresh_token = naver_token.get("refresh_token")
 
-    kakao_id = get_kakao_id(kakao_access_token)
-    jwt = get_jwt(db=db, kakao_id=kakao_id)
+    naver_id = get_naver_id(naver_access_token)
+    jwt = get_jwt(db=db, naver_id=naver_id)
+
+    new_user = UserCreate(
+        naver_id=naver_id,
+        naver_access_token=naver_access_token,
+        naver_refresh_token=naver_refresh_token,
+        jwt_refresh_token=jwt.refresh_token
+    )
+    crud_user.create(db, obj_in=new_user)
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
@@ -33,14 +41,14 @@ async def naver_auth(authorization_code: AuthCode, request: Request, db: Session
         httponly=True,  # 클라이언트 사이드 스크립트에서 접근 불가능하도록 설정
         max_age=1800,  # 쿠키 유효 시간 (예: 1800초 = 30분)
         expires=1800,
-        # samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
-        # secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
+        samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
+        secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
     )
     
     return response
 
 def get_naver_token(authorization_code: AuthCode, request: Request):
-    REST_API_KEY = settings.KAKAO_REST_API_KEY
+    REST_API_KEY = settings.NAVER_REST_API_KEY
     scheme = request.headers.get('x-forwarded-for')
     if scheme == '34.125.247.54':
         REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
@@ -64,12 +72,12 @@ def get_naver_token(authorization_code: AuthCode, request: Request):
         _result = _res.json()
         return _result
     else:
-        raise HTTPException(status_code=401, detail="Kakao code authentication failed")
+        raise HTTPException(status_code=401, detail="naver code authentication failed")
 
-def get_kakao_id(kakao_access_token):
-    _url = "https://kapi.kakao.com/v2/user/me"
+def get_naver_id(naver_access_token):
+    _url = "https://kapi.naver.com/v2/user/me"
     headers = {
-        "Authorization": f"Bearer {kakao_access_token}"
+        "Authorization": f"Bearer {naver_access_token}"
     }
     _res = requests.get(_url, headers=headers)
 
@@ -78,7 +86,7 @@ def get_kakao_id(kakao_access_token):
         user_id = response_data.get("id")
         return user_id
     else:
-        raise HTTPException(status_code=401, detail="Kakao access token authentication failed")
+        raise HTTPException(status_code=401, detail="naver access token authentication failed")
 
 def create_user(*, db: Session, new_user: UserCreate):
     user = crud_user.create(db, obj_in=new_user)

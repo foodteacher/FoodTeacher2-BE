@@ -23,15 +23,8 @@ async def kakaoAuth(authorization_code: AuthCode, request: Request, db: Session 
     kakao_refresh_token = kakao_token.get("refresh_token")
 
     kakao_id = get_kakao_id(kakao_access_token)
+    user = crud_user.get_by_kakao_id(db, kakao_id=kakao_id)
     jwt = get_jwt(db=db, kakao_id=kakao_id)
-
-    new_user = UserCreate(
-        kakao_id=kakao_id,
-        kakao_access_token=kakao_access_token,
-        kakao_refresh_token=kakao_refresh_token,
-        jwt_refresh_token=jwt.refresh_token
-    )
-    crud_user.create(db, obj_in=new_user)
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
@@ -44,6 +37,18 @@ async def kakaoAuth(authorization_code: AuthCode, request: Request, db: Session 
         samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
         secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
     )
+    
+    if user:
+        return response
+    else:
+        new_user = UserCreate(
+        kakao_id=kakao_id,
+        kakao_access_token=kakao_access_token,
+        kakao_refresh_token=kakao_refresh_token,
+        jwt_refresh_token=jwt.refresh_token
+    )
+    crud_user.create(db, obj_in=new_user)
+
     
     return response
 

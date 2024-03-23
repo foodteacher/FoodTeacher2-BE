@@ -17,10 +17,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
 
-    #kakao 설정 정보
+    # kakao 설정 정보
     KAKAO_REST_API_KEY: str
     REDIRECT_URI_DEVELOPMENT: str ="http://localhost:3000/oauth"
     REDIRECT_URI_PRODUCTION: str = "https://v2.foodteacher.xyz/oauth"
+
+    # naver
 
     # chatGPT
     OPENAI_API_KEY: str
