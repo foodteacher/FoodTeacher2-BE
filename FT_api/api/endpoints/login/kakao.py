@@ -6,7 +6,7 @@ from FT_api.core.config import get_setting
 from FT_api.core.security import get_jwt
 from FT_api.db.session import get_db
 from FT_api.schemas.token import Token
-from FT_api.schemas.kakao import KakaoCode
+from FT_api.schemas.login import KakaoCode
 from FT_api.schemas.user import UserUpdate, UserCreate
 from FT_api.crud.user import crud_user
 
