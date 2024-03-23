@@ -6,7 +6,7 @@ from FT_api.core.config import get_setting
 from FT_api.core.security import get_jwt
 from FT_api.db.session import get_db
 from FT_api.schemas.token import Token
-from FT_api.schemas.login import KakaoCode
+from FT_api.schemas.login import AuthCode
 from FT_api.schemas.user import UserUpdate, UserCreate
 from FT_api.crud.user import crud_user
 
@@ -17,13 +17,21 @@ settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
 @router.post('/kakao')
-async def kakaoAuth(authorization_code: KakaoCode, request: Request, db: Session = Depends(get_db)):
+async def kakaoAuth(authorization_code: AuthCode, request: Request, db: Session = Depends(get_db)):
     kakao_token = get_kakao_token(authorization_code=authorization_code, request=request)
     kakao_access_token = kakao_token.get("access_token")
     kakao_refresh_token = kakao_token.get("refresh_token")
 
     kakao_id = get_kakao_id(kakao_access_token)
     jwt = get_jwt(db=db, kakao_id=kakao_id)
+
+    new_user = UserCreate(
+        kakao_id=kakao_id,
+        kakao_access_token=kakao_access_token,
+        kakao_refresh_token=kakao_refresh_token,
+        jwt_refresh_token=jwt.refresh_token
+    )
+    crud_user.create(db, obj_in=new_user)
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
@@ -33,13 +41,13 @@ async def kakaoAuth(authorization_code: KakaoCode, request: Request, db: Session
         httponly=True,  # 클라이언트 사이드 스크립트에서 접근 불가능하도록 설정
         max_age=1800,  # 쿠키 유효 시간 (예: 1800초 = 30분)
         expires=1800,
-        # samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
-        # secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
+        samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
+        secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
     )
     
     return response
 
-def get_kakao_token(authorization_code: KakaoCode, request: Request):
+def get_kakao_token(authorization_code: AuthCode, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     scheme = request.headers.get('x-forwarded-for')
     if scheme == '34.125.247.54':

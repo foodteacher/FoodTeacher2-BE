@@ -6,7 +6,7 @@ from FT_api.core.config import get_setting
 from FT_api.core.security import get_jwt
 from FT_api.db.session import get_db
 from FT_api.schemas.token import Token
-from FT_api.schemas.login import KakaoCode
+from FT_api.schemas.login import AuthCode
 from FT_api.schemas.user import UserUpdate, UserCreate
 from FT_api.crud.user import crud_user
 
@@ -17,7 +17,7 @@ settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
 @router.post('/naver')
-async def naver_auth(authorization_code: KakaoCode, request: Request, db: Session = Depends(get_db)):
+async def naver_auth(authorization_code: AuthCode, request: Request, db: Session = Depends(get_db)):
     kakao_token = get_kakao_token(authorization_code=authorization_code, request=request)
     kakao_access_token = kakao_token.get("access_token")
     kakao_refresh_token = kakao_token.get("refresh_token")
@@ -39,7 +39,7 @@ async def naver_auth(authorization_code: KakaoCode, request: Request, db: Sessio
     
     return response
 
-def get_kakao_token(authorization_code: KakaoCode, request: Request):
+def get_kakao_token(authorization_code: AuthCode, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     scheme = request.headers.get('x-forwarded-for')
     if scheme == '34.125.247.54':
