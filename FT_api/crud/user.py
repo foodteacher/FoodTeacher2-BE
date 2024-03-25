@@ -9,7 +9,7 @@ from FT_api.schemas.user import UserCreate, UserUpdate
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_kakao_id(self, db: Session, *, kakao_id: str) -> Optional[User]:
-        return db.query(User).filter(User.kakao_id == kakao_id).first()
+        return db.query(User).filter(User.user_id == kakao_id).first()
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(**obj_in.model_dump(exclude_unset=True))
