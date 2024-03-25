@@ -17,7 +17,7 @@ FT_api = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "https://foodteacher.xyz",
+    "https://v2.foodteacher.xyz",
 ]
 FT_api.add_middleware(
     CORSMiddleware,
