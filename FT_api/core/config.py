@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     REDIRECT_URI_PRODUCTION: str = "https://v2.foodteacher.xyz/oauth"
 
     # naver
+    NAVER_CLIENT_ID: str
+    NAVER_SECRET: str
 
     # chatGPT
     OPENAI_API_KEY: str

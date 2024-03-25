@@ -6,7 +6,7 @@ from FT_api.core.config import get_setting
 from FT_api.core.security import get_jwt
 from FT_api.db.session import get_db
 from FT_api.schemas.token import Token
-from FT_api.schemas.login import AuthCode
+from FT_api.schemas.login import KakaoAuth
 from FT_api.schemas.user import UserUpdate, UserCreate
 from FT_api.crud.user import crud_user
 
@@ -17,7 +17,7 @@ settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
 @router.post('/kakao')
-async def kakaoAuth(authorization_code: AuthCode, request: Request, db: Session = Depends(get_db)):
+async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Session = Depends(get_db)):
     kakao_token = get_kakao_token(authorization_code=authorization_code, request=request)
     kakao_access_token = kakao_token.get("access_token")
     kakao_refresh_token = kakao_token.get("refresh_token")
@@ -42,9 +42,10 @@ async def kakaoAuth(authorization_code: AuthCode, request: Request, db: Session 
         return response
     else:
         new_user = UserCreate(
-        kakao_id=kakao_id,
-        kakao_access_token=kakao_access_token,
-        kakao_refresh_token=kakao_refresh_token,
+        user_id=kakao_id,
+        provider="Kakao",
+        access_token=kakao_access_token,
+        refresh_token=kakao_refresh_token,
         jwt_refresh_token=jwt.refresh_token
     )
     crud_user.create(db, obj_in=new_user)
@@ -52,15 +53,15 @@ async def kakaoAuth(authorization_code: AuthCode, request: Request, db: Session 
     
     return response
 
-def get_kakao_token(authorization_code: AuthCode, request: Request):
+def get_kakao_token(authorization_code: KakaoAuth, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     scheme = request.headers.get('x-forwarded-for')
-    if scheme == '34.125.247.54':
-        REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
-    else:
-        REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
+    # if scheme == '34.125.247.54':
+    #     REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
+    # else:
+    #     REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     
-    # REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
+    REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     _url = f'https://kauth.kakao.com/oauth/token'
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -84,6 +85,7 @@ def get_kakao_id(kakao_access_token):
     headers = {
         "Authorization": f"Bearer {kakao_access_token}"
     }
+
     _res = requests.get(_url, headers=headers)
 
     if _res.status_code == 200:

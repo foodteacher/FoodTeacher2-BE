@@ -5,9 +5,10 @@ class UserBase(BaseModel):
     id: Optional[int] = None
 
 class UserCreate(UserBase):
-    kakao_id: int
-    kakao_access_token: str
-    kakao_refresh_token: str
+    user_id: int
+    provider: str
+    access_token: str
+    refresh_token: str
     jwt_refresh_token: str
 
 class UserUpdate(UserBase):
@@ -17,23 +18,24 @@ class UserUpdate(UserBase):
     age: int = None
     gender: str = None
     target_weight: float = None
-    kakao_access_token: str = None
-    kakao_refresh_token: str = None
+    access_token: str = None
+    refresh_token: str = None
     jwt_refresh_token: str = None
 
 class UserInput(BaseModel):
     query: str
 
 class UserInDBBase(UserBase):
-    kakao_id: Optional[int] = None
+    user_id: Optional[int] = None
     name: Optional[str] = None
     height: Optional[float] = None
     weight: Optional[float] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     target_weight: Optional[float] = None
-    kakao_access_token: Optional[str] = None
-    kakao_refresh_token: Optional[str] = None
+    provider: Optional[str] = None
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
     jwt_refresh_token: Optional[str] = None
 
     class Config:
