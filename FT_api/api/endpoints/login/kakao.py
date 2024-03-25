@@ -28,15 +28,27 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
-    response.set_cookie(
-        key="refresh_token",
-        value=jwt.refresh_token,
-        httponly=True,  # 클라이언트 사이드 스크립트에서 접근 불가능하도록 설정
-        max_age=1800,  # 쿠키 유효 시간 (예: 1800초 = 30분)
-        expires=1800,
-        samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
-        secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
-    )
+    scheme = request.headers.get('x-forwarded-for')
+    if scheme == '34.125.247.54':
+        response.set_cookie(
+            key="refresh_token",
+            value=jwt.refresh_token,
+            httponly=True,  # 클라이언트 사이드 스크립트에서 접근 불가능하도록 설정
+            max_age=1800,  # 쿠키 유효 시간 (예: 1800초 = 30분)
+            expires=1800,
+            samesite='None',  # 다른 도메인 간 요청에서도 쿠키를 전송
+            secure=True  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
+        )
+    else:
+        response.set_cookie(
+            key="refresh_token",
+            value=jwt.refresh_token,
+            httponly=True,  # 클라이언트 사이드 스크립트에서 접근 불가능하도록 설정
+            max_age=1800,  # 쿠키 유효 시간 (예: 1800초 = 30분)
+            expires=1800,
+            samesite='Lax',  # 다른 도메인 간 요청에서도 쿠키를 전송
+            secure=False  # 쿠키가 HTTPS를 통해서만 전송되도록 설정
+        )
     
     if user:
         return response
@@ -56,10 +68,10 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
 def get_kakao_token(authorization_code: KakaoAuth, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     scheme = request.headers.get('x-forwarded-for')
-    # if scheme == '34.125.247.54':
-    #     REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
-    # else:
-    #     REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
+    if scheme == '34.125.247.54':
+        REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
+    else:
+        REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     
     REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     _url = f'https://kauth.kakao.com/oauth/token'
