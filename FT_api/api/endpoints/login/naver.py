@@ -30,7 +30,7 @@ async def naver_auth(
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     jwt = get_jwt(db=db, social_id=naver_id)
 
-    new_user = new_user = UserCreate(
+    new_user = UserCreate(
         user_id=naver_id,
         provider="Naver",
         access_token=naver_access_token,
