@@ -72,7 +72,7 @@ def get_kakao_token(authorization_code: KakaoAuth, request: Request):
     # client_ip = request.headers.get('x-forwarded-for')
     print("현재 client_ip는 ", client_ip_host, "입니다.")
     # print("현재 client_ip는 ", client_ip, "입니다.")
-    if client_ip_host == ' 172.17.0.1':
+    if client_ip_host == '172.17.0.1':
         REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
     else:
         REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
