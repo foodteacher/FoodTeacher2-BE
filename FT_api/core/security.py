@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from FT_api.db.session import get_db
 from FT_api.core.config import get_setting
 from FT_api.schemas.token import Token
+
 settings = get_setting()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -24,10 +25,11 @@ def create_token(subject: Union[str, Any], expires_delta: timedelta = None) -> s
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-def get_jwt(*, kakao_id: int, db: Session = Depends(get_db)) -> Token:
+
+def get_jwt(*, social_id: int, db: Session = Depends(get_db)) -> Token:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_token(subject=kakao_id, expires_delta=access_token_expires)
-    
+
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     refresh_token = create_token(subject=kakao_id, expires_delta=refresh_token_expires)
     res = Token(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
