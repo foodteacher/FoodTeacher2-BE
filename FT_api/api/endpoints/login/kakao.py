@@ -67,13 +67,14 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
 
 def get_kakao_token(authorization_code: KakaoAuth, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
-    scheme = request.headers.get('x-forwarded-for')
-    if scheme == '34.125.247.54':
+    client_ip = request.headers.get('x-forwarded-for')
+    print("현재 client_ip는 ", scheme, "입니다.")
+    if client_ip == '34.125.247.54':
         REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
     else:
         REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     
-    REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
+    # REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
     _url = f'https://kauth.kakao.com/oauth/token'
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
