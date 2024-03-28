@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional, Any
+from typing import Optional, Any, Union
 
 class UserBase(BaseModel):
     id: Optional[int] = None
 
 class UserCreate(UserBase):
-    user_id: int
+    user_id: Union[str, int]
     provider: str
     access_token: str
     refresh_token: str
