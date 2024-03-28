@@ -28,9 +28,9 @@ def create_token(subject: Union[str, Any], expires_delta: timedelta = None) -> s
 
 def get_jwt(*, social_id: int, db: Session = Depends(get_db)) -> Token:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_token(subject=kakao_id, expires_delta=access_token_expires)
+    access_token = create_token(subject=social_id, expires_delta=access_token_expires)
 
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
-    refresh_token = create_token(subject=kakao_id, expires_delta=refresh_token_expires)
+    refresh_token = create_token(subject=social_id, expires_delta=refresh_token_expires)
     res = Token(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
     return res
