@@ -67,7 +67,9 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
 
 def get_kakao_token(authorization_code: KakaoAuth, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
+    client_ip_host = request.client.host
     client_ip = request.headers.get('x-forwarded-for')
+    print("현재 client_ip는 ", client_ip_host, "입니다.")
     print("현재 client_ip는 ", client_ip, "입니다.")
     if client_ip == '121.135.255.66':
         REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
