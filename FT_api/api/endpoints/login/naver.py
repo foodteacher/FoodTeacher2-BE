@@ -100,8 +100,8 @@ def get_naver_id(naver_access_token):
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        response_naver = response.get("response")
-        return response_naver.get("id")
+        response_naver = response.json()
+        return response_naver.get("response").get("id")
     else:
         return {"Error Code:", response.status_code}
 
