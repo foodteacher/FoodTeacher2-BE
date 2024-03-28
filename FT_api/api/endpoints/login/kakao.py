@@ -28,8 +28,9 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
-    scheme = request.headers.get('x-forwarded-for')
-    if scheme == '34.125.247.54':
+    # client_ip = request.headers.get('x-forwarded-for')
+    client_ip_host = request.client.host
+    if client_ip_host == '172.17.0.1':
         response.set_cookie(
             key="refresh_token",
             value=jwt.refresh_token,
@@ -68,10 +69,10 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
 def get_kakao_token(authorization_code: KakaoAuth, request: Request):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     client_ip_host = request.client.host
-    client_ip = request.headers.get('x-forwarded-for')
+    # client_ip = request.headers.get('x-forwarded-for')
     print("현재 client_ip는 ", client_ip_host, "입니다.")
-    print("현재 client_ip는 ", client_ip, "입니다.")
-    if client_ip == '121.135.255.66':
+    # print("현재 client_ip는 ", client_ip, "입니다.")
+    if client_ip_host == ' 172.17.0.1':
         REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
     else:
         REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
