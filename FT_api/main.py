@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from FT_api.db.session import Base, engine
 from FT_api.api.api import api_router
@@ -31,5 +31,7 @@ FT_api.include_router(api_router)
 
 
 @FT_api.get("/")
-def read_root():
+def read_root(request: Request):
+    headers = request.headers
+    print("요청 Header는 ", headers, "임당~")
     return "hello, 팩트폭행단~!"
