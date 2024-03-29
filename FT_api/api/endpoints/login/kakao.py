@@ -28,9 +28,12 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
-    # client_ip = request.headers.get('x-forwarded-for')
-    client_ip = request.headers.get('X-Real-IP')
-    print(client_ip)
+    client_ip_forwarded = request.headers.get('x-forwarded-for')
+    client_ip_Real = request.headers.get('X-Real-IP')
+    headers = request.headers
+    print("heards: ", headers)
+    # print(client_ip_forwarded)
+    # print(client_ip_Real)
     client_ip_host = request.client.host
     if client_ip_host == '172.17.0.1':
         response.set_cookie(
