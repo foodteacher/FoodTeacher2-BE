@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from FT_api.api.endpoints.login import login
+from FT_api.api.endpoints.login import urls
 from FT_api.api.endpoints.logout.kakao import kakao
 
 api_router = APIRouter()
-api_router.include_router(login.login_router, prefix="/login", tags=["login"])
+api_router.include_router(urls.login_router, prefix="/login", tags=["login"])
 api_router.include_router(kakao.router, tags=["logout"])
 
 # @app.on_event("startup")

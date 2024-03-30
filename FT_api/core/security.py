@@ -34,3 +34,5 @@ def get_jwt(*, social_id: int, db: Session = Depends(get_db)) -> Token:
     refresh_token = create_token(subject=social_id, expires_delta=refresh_token_expires)
     res = Token(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
     return res
+
+def get_access_token(*, social_id)

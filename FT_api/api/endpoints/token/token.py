@@ -17,14 +17,14 @@ import requests
 router = APIRouter()
 settings = get_setting()
 
-@router.post("/refresh/jwt/access_token")
+@router.post("/jwt/access_token")
 def get_jwt_access_token_by_refresh_token(refresh_token: RefreshToken, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> Token:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_token(subject=current_user.kakao_id, expires_delta=access_token_expires)
     res = Token(access_token=access_token, refresh_token=refresh_token.token, token_type="bearer")
     return res
 
-@router.post("/refresh/kakao/access_token")
+@router.post("/kakao/access_token")
 def get_kakao_access_token_by_refresh_token(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     _res = request_kakao_access_token(current_user, db)
 

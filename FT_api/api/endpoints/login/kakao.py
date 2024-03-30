@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Header
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -17,8 +17,10 @@ settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
 @router.post('/kakao')
-async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Session = Depends(get_db)):
-    kakao_token = get_kakao_token(authorization_code=authorization_code, request=request)
+async def kakao_auth(authorization_code: KakaoAuth, request: Request, x_environment: str = Header(None, alias="X-Environment"), db: Session = Depends(get_db)):
+    print("x_environment는 ", x_environment, "입니다.")
+    print("x_environment의 타입은 ", type(x_environment), "입니다.")
+    kakao_token = get_kakao_token(authorization_code=authorization_code, x_environment=x_environment)
     kakao_access_token = kakao_token.get("access_token")
     kakao_refresh_token = kakao_token.get("refresh_token")
 
@@ -28,12 +30,10 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
     
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": jwt.access_token})
-    host = request.headers.get('host')
-    headers = request.headers
-    print("heards: ", headers)
-    print(host)
-    client_ip_host = request.client.host
-    if host == '172.17.0.1':
+    # host = request.headers.get('host')
+    # headers = request.headers
+    # client_ip_host = request.client.host
+    if x_environment != 'dev':
         response.set_cookie(
             key="refresh_token",
             value=jwt.refresh_token,
@@ -69,15 +69,15 @@ async def kakao_auth(authorization_code: KakaoAuth, request: Request, db: Sessio
     
     return response
 
-def get_kakao_token(authorization_code: KakaoAuth, request: Request):
+def get_kakao_token(*, authorization_code: KakaoAuth, x_environment):
     REST_API_KEY = settings.KAKAO_REST_API_KEY
-    client_ip_host = request.client.host
-    headers = request.headers
-    print("heards: ", headers)
+    # client_ip_host = request.client.host
+    # headers = request.headers
+    # print("heards: ", headers)
     # client_ip = request.headers.get('x-forwarded-for')
-    print("현재 client_ip는 ", client_ip_host, "입니다.")
+    # print("현재 client_ip는 ", client_ip_host, "입니다.")
     # print("현재 client_ip는 ", client_ip, "입니다.")
-    if client_ip_host == '172.17.0.1':
+    if x_environment != 'dev':
         REDIRECT_URI = settings.REDIRECT_URI_PRODUCTION
     else:
         REDIRECT_URI = settings.REDIRECT_URI_DEVELOPMENT
