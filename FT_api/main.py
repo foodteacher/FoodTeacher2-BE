@@ -31,7 +31,5 @@ FT_api.include_router(api_router)
 
 
 @FT_api.get("/")
-def read_root(request: Request):
-    headers = request.headers
-    print("요청 Header는 ", headers, "임당~")
+def read_root():
     return "hello, 팩트폭행단~!"

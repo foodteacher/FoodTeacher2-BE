@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Union
 from fastapi import Depends
 
@@ -15,10 +15,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_jwt_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
+    current_time_utc = datetime.now(timezone.utc)
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = current_time_utc + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(
+        expire = current_time_utc + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
     to_encode = {"exp": expire, "sub": str(subject)}
