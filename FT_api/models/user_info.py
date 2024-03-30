@@ -18,4 +18,5 @@ class User(Base):
     weight: Mapped[float] = mapped_column(nullable=True)
     age: Mapped[int] = mapped_column(nullable=True)
     gender: Mapped[str] = mapped_column(String(255), nullable=True)
+    blood_type: Mapped[str] = mapped_column(String(255), nullable=True)
     target_weight: Mapped[float] = mapped_column(nullable=True)

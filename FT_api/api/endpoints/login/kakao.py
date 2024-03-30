@@ -89,7 +89,7 @@ def get_kakao_id(kakao_access_token):
     if _res.status_code == 200:
         response_data = _res.json()
         user_id = response_data.get("id")
-        return user_id
+        return str(user_id)
     else:
         raise HTTPException(status_code=401, detail="Kakao access token authentication failed")
 

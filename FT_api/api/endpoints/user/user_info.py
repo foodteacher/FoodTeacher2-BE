@@ -14,4 +14,3 @@ settings = get_setting()
 @router.get("/")
 def get_user_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return current_user
-    
