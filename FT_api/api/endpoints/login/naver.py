@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse, Response
 from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
-from FT_api.core.security import get_jwt
+from FT_api.core.security import create_jwt_access_and_refresh_tokens
 from FT_api.db.session import get_db
 from FT_api.schemas.token import Token
 from FT_api.schemas.login import NaverAuth
@@ -18,24 +18,22 @@ settings = get_setting()
 
 # 엑세스 토큰을 저장할 변수
 @router.post("/naver")
-async def naver_auth(
-    authorization: NaverAuth, request: Request, db: Session = Depends(get_db)
-):
-    naver_token = get_naver_token(authorization=authorization, request=request)
+async def naver_auth(authorization: NaverAuth, db: Session = Depends(get_db)):
+    naver_token = get_naver_token(authorization=authorization)
     naver_access_token = naver_token.get("access_token")
     naver_refresh_token = naver_token.get("refresh_token")
 
     naver_id = get_naver_id(naver_access_token)
     if "Error Code" in naver_id:
-        return Response(status_code=status.HTTP_403_FORBIDDEN)
-    jwt = get_jwt(db=db, social_id=naver_id)
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
+    jwt = create_jwt_access_and_refresh_tokens(db=db, social_id=naver_id)
 
     new_user = UserCreate(
         user_id=naver_id,
         provider="Naver",
         access_token=naver_access_token,
         refresh_token=naver_refresh_token,
-        jwt_refresh_token=jwt.refresh_token
+        jwt_refresh_token=jwt.refresh_token,
     )
     crud_user.create(db, obj_in=new_user)
 
@@ -56,7 +54,7 @@ async def naver_auth(
     return response
 
 
-def get_naver_token(authorization: NaverAuth, request: Request):
+def get_naver_token(authorization: NaverAuth):
     naver_client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_SECRET
 
@@ -81,20 +79,9 @@ def get_naver_token(authorization: NaverAuth, request: Request):
 
 
 def get_naver_id(naver_access_token):
-    # _url = "https://kapi.naver.com/v2/user/me"
-    # headers = {"Authorization": f"Bearer {naver_access_token}"}
-    # _res = requests.get(_url, headers=headers)
-
-    # if _res.status_code == 200:
-    #     response_data = _res.json()
-    #     user_id = response_data.get("id")
-    #     return user_id
-    # else:
-    #     raise HTTPException(
-    #         status_code=401, detail="naver access token authentication failed"
-    #     )
-
-    headers = {"Authorization": "Bearer " + naver_access_token}  # Bearer 다음에 공백 추가
+    headers = {
+        "Authorization": "Bearer " + naver_access_token
+    }  # Bearer 다음에 공백 추가
     url = "https://openapi.naver.com/v1/nid/me"
 
     response = requests.get(url, headers=headers)

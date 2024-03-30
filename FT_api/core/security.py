@@ -14,7 +14,7 @@ settings = get_setting()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def create_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
+def create_jwt_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -26,12 +26,12 @@ def create_token(subject: Union[str, Any], expires_delta: timedelta = None) -> s
     return encoded_jwt
 
 
-def get_jwt(*, social_id: int, db: Session = Depends(get_db)) -> Token:
+def create_jwt_access_and_refresh_tokens(*, social_id: int, db: Session = Depends(get_db)) -> Token:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_token(subject=social_id, expires_delta=access_token_expires)
+    access_token = create_jwt_token(subject=social_id, expires_delta=access_token_expires)
 
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
-    refresh_token = create_token(subject=social_id, expires_delta=refresh_token_expires)
+    refresh_token = create_jwt_token(subject=social_id, expires_delta=refresh_token_expires)
     res = Token(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
     return res
 

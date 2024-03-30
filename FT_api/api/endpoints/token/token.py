@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
-from FT_api.core.security import create_token
+from FT_api.core.security import create_jwt_token
 from FT_api.db.session import get_db
 from FT_api.models.user_info import User
 from FT_api.schemas.user import UserUpdate
@@ -20,7 +20,7 @@ settings = get_setting()
 @router.post("/jwt/access_token")
 def get_jwt_access_token_by_refresh_token(refresh_token: RefreshToken, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> Token:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_token(subject=current_user.kakao_id, expires_delta=access_token_expires)
+    access_token = create_jwt_token(subject=current_user.kakao_id, expires_delta=access_token_expires)
     res = Token(access_token=access_token, refresh_token=refresh_token.token, token_type="bearer")
     return res
 
