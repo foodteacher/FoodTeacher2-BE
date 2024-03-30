@@ -16,8 +16,9 @@ class Settings(BaseSettings):
     # 60 minutes * 24 hours * 7 days = 7 days
     # ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
-
+    # REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
+    REFRESH_TOKEN_EXPIRE_MINUTES : int = 5
+    
     # kakao 설정 정보
     KAKAO_REST_API_KEY: str
     REDIRECT_URI_DEVELOPMENT: str ="http://localhost:3000/oauth"
