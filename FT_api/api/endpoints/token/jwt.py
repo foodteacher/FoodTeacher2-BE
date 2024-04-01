@@ -12,7 +12,7 @@ router = APIRouter()
 settings = get_setting()
 
 
-@router.post("/access_token")
+@router.post("/accessToken")
 def get_jwt_access_token(refresh_token: str = Depends(get_refresh_token)):
     if not refresh_token:
         raise HTTPException(
