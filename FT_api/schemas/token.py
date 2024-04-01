@@ -5,16 +5,7 @@ class TokenPayload(BaseModel):
     sub: Optional[str] = None
     exp: Optional[int] = None
 
-class BaseToken(BaseModel):
-    token: str
-
-class RefreshToken(BaseToken):
-    pass
-
-class AccessToken(BaseToken):
-    pass
-
-class Token(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str
+class JWTToken(BaseModel):
+    accessToken: Optional[str] = None
+    refreshToken: Optional[str] = None
+    tokenType: Optional[str] = None
