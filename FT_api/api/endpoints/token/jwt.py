@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
 from FT_api.core.security import create_jwt_token
@@ -14,7 +13,7 @@ settings = get_setting()
 
 
 @router.post("/access_token")
-def get_jwt_access_token(refresh_token: str = Depends(get_refresh_token), db: Session = Depends(get_db)):
+def get_jwt_access_token(refresh_token: str = Depends(get_refresh_token)):
     if not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST
@@ -22,7 +21,7 @@ def get_jwt_access_token(refresh_token: str = Depends(get_refresh_token), db: Se
     token_data = decode_jwt(refresh_token)
     exp = token_data.exp
     if exp is not None or datetime.fromtimestamp(exp, tz=timezone.utc) > datetime.now(tz=timezone.utc):
-        return AccessToken(token=create_jwt_token(refresh_token.token))
+        return AccessToken(token=create_jwt_token(refresh_token))
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

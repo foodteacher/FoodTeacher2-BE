@@ -45,7 +45,7 @@ async def kakao_auth(authorization_code: KakaoAuth, x_environment: str = Header(
         "httponly": True,
         "max_age": 1800,
         "expires": 1800,
-        "samesite": 'None' if x_environment == 'dev' else 'Lax',
+        "samesite": 'None' if x_environment != 'dev' else 'Lax',
         "secure": x_environment != 'dev'
     }
     response.set_cookie(**cookie_kwargs)
