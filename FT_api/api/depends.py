@@ -10,7 +10,6 @@ from FT_api.core.config import get_setting
 from FT_api.models.user_info import User
 from FT_api.crud.user import crud_user
 from FT_api.schemas.token import TokenPayload
-from datetime import datetime, timezone
 
 from FT_api.db.session import get_db
 

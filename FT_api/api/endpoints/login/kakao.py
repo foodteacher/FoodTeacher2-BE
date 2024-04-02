@@ -36,12 +36,12 @@ async def kakao_auth(authorization_code: KakaoAuth, x_environment: str = Header(
     )
         crud_user.create(db, obj_in=new_user)
     
-    content = JWTToken(accessToken=jwt.access_token)
+    content = JWTToken(accessToken=jwt.accessToken)
     # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
     response = JSONResponse(status_code=status.HTTP_200_OK, content=content.model_dump())
     cookie_kwargs = {
         "key": "refresh_token",
-        "value": jwt.refresh_token,
+        "value": jwt.refreshToken,
         "httponly": True,
         "max_age": 1800,
         "expires": 1800,
