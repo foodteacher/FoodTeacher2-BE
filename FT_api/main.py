@@ -1,17 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from FT_api.db.session import Base, engine
 from FT_api.api.api import api_router
-
-
-# app 생성
-# def create_tables():
-#     Base.metadata.create_all(bind=engine)
-
-# def get_application():
-#     FT_api = FastAPI()
-#     create_tables()
-#     return FT_api
 
 FT_api = FastAPI()
 

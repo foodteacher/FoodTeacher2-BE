@@ -2,10 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from FT_api.core.config import get_setting
 from FT_api.core.security import create_jwt_access_token
-from FT_api.db.session import get_db
 from FT_api.schemas.token import JWTResp
 from FT_api.api.depends import get_refresh_token, decode_jwt
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 
 router = APIRouter()

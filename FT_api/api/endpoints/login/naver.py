@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Header
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting

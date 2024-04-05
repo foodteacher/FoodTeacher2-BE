@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from functools import lru_cache
+# from functools import lru_cache
 
 class Settings(BaseSettings):
     # MySQL 설정 정보

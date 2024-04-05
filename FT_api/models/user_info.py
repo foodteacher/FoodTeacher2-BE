@@ -1,7 +1,6 @@
-from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from typing import List, Optional
-from datetime import datetime
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 from FT_api.db.session import Base
 
