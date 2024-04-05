@@ -5,7 +5,9 @@ class TokenPayload(BaseModel):
     sub: Optional[str] = None
     exp: Optional[int] = None
 
-class JWTToken(BaseModel):
+class JWTCreate(BaseModel):
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+
+class JWTResp(BaseModel):
     accessToken: Optional[str] = None
-    refreshToken: Optional[str] = None
-    tokenType: Optional[str] = None

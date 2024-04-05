@@ -40,7 +40,10 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
 
     user = crud_user.get_by_social_id(db, social_id=token_data.sub)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+            )
     
     return user
         

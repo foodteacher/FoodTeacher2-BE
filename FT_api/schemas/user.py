@@ -25,18 +25,13 @@ class UserUpdate(UserBase):
 class UserInput(BaseModel):
     query: str
 
-class UserInDBBase(UserBase):
-    user_id: Optional[int] = None
+class UserInDBBase(BaseModel):
     name: Optional[str] = None
     height: Optional[float] = None
     weight: Optional[float] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     target_weight: Optional[float] = None
-    provider: Optional[str] = None
-    access_token: Optional[str] = None
-    refresh_token: Optional[str] = None
-    jwt_refresh_token: Optional[str] = None
 
     class Config:
         from_attributes = True

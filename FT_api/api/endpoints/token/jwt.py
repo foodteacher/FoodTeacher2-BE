@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from FT_api.core.config import get_setting
-from FT_api.core.security import create_jwt_token
+from FT_api.core.security import create_jwt_access_token
 from FT_api.db.session import get_db
-from FT_api.schemas.token import JWTToken
+from FT_api.schemas.token import JWTResp
 from FT_api.api.depends import get_refresh_token, decode_jwt
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 router = APIRouter()
@@ -22,7 +22,7 @@ def get_jwt_access_token(refresh_token: str = Depends(get_refresh_token)):
     sub = token_data.sub
     exp = token_data.exp
     if exp is not None or datetime.fromtimestamp(exp, tz=timezone.utc) > datetime.now(tz=timezone.utc):
-        return JWTToken(accessToken=create_jwt_token(sub))
+        return JWTResp(accessToken=create_jwt_access_token(sub))
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
