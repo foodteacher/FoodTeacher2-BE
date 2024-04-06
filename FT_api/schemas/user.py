@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional, Any, Union
+from typing import Optional, Any
 
 class UserBase(BaseModel):
-    id: Optional[int] = None
+    id: int | None = None
 
 class UserCreate(UserBase):
-    user_id: Union[str, int]
+    user_id: str| int
     provider: str
     access_token: str
     refresh_token: str
@@ -26,12 +26,12 @@ class UserInput(BaseModel):
     query: str
 
 class UserInDBBase(BaseModel):
-    name: Optional[str] = None
-    height: Optional[float] = None
-    weight: Optional[float] = None
-    age: Optional[int] = None
-    gender: Optional[str] = None
-    target_weight: Optional[float] = None
+    name: str| None = None
+    height: float | None = None
+    weight: float | None = None
+    age: int | None = None
+    gender: str | None = None
+    target_weight: float | None = None
 
     class Config:
         from_attributes = True
@@ -41,15 +41,15 @@ class UserRead(UserInDBBase):
     pass
 
 class UserInfo(BaseModel):
-    name: Optional[str] = None
-    gender: Optional[str] = None
-    age: Optional[int] = None
-    height: Optional[float] = None
-    weight: Optional[float] = None
-    target_weight: Optional[float] = None
-    breakfast: Optional[dict[str, Any]] = None
-    lunch: Optional[dict[str, Any]] = None
-    dinner: Optional[dict[str, Any]] = None
-    advice: Optional[str] = None
-    recommended_exercise: Optional[str] = None
-    excess_calories: Optional[float] = None
+    name: str | None = None
+    gender: str | None = None
+    age: int | None = None
+    height: float | None = None
+    weight: float | None = None
+    target_weight: float | None = None
+    breakfast: dict[str, Any] | None = None
+    lunch: dict[str, Any] | None = None
+    dinner: dict[str, Any] | None = None
+    advice: str | None = None
+    recommended_exercise: str | None = None
+    excess_calories: float | None = None

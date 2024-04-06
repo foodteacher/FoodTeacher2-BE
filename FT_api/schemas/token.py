@@ -1,13 +1,12 @@
-from typing import Optional
 from pydantic import BaseModel
 
 class TokenPayload(BaseModel):
-    sub: Optional[str] = None
-    exp: Optional[int] = None
+    sub: str | None = None
+    exp: int | None = None
 
 class JWTCreate(BaseModel):
-    access_token: Optional[str] = None
-    refresh_token: Optional[str] = None
+    access_token: str | None = None
+    refresh_token: str | None = None
 
 class JWTResp(BaseModel):
-    accessToken: Optional[str] = None
+    accessToken: str | None = None
