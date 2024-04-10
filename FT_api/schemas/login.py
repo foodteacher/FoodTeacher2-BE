@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class AuthCode(BaseModel):
-    code: str
+    authorization_code: str
 
 class KakaoAuth(AuthCode):
     pass

@@ -1,7 +1,11 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 # from functools import lru_cache
 
+
 class Settings(BaseSettings):
+    ENV: str
+
     # MySQL 설정 정보
     MYSQL_HOST: str
     MYSQL_PORT: int
@@ -17,12 +21,10 @@ class Settings(BaseSettings):
     # ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
     # REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
-    REFRESH_TOKEN_EXPIRE_MINUTES : int = 5
-    
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 5
+
     # kakao 설정 정보
     KAKAO_REST_API_KEY: str
-    REDIRECT_URI_DEVELOPMENT: str ="http://localhost:3000/oauth"
-    REDIRECT_URI_PRODUCTION: str = "https://v2.foodteacher.xyz/oauth"
 
     # naver
     NAVER_CLIENT_ID: str
@@ -32,6 +34,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
 
     model_config = SettingsConfigDict(env_file="../../.env")
+
 
 def get_setting():
     return Settings()
