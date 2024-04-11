@@ -5,8 +5,9 @@ from FT_api.api.api import api_router
 FT_api = FastAPI()
 
 origins = [
-    "http://localhost:3000",
-    "https://v2.foodteacher.xyz",
+    # "http://localhost:3000",
+    # "https://v2.foodteacher.xyz",
+    "*"
 ]
 FT_api.add_middleware(
     CORSMiddleware,

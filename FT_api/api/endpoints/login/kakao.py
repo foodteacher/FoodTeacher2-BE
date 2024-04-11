@@ -22,9 +22,9 @@ kakao_redirect_uri = KAKAO_REDIRECT_URI = (
     )
 
 
-
 @router.get("/auth")
 def kakao_auth():
+    print(kakao_redirect_uri)
     REST_API_KEY = settings.KAKAO_REST_API_KEY
     url = "https://kauth.kakao.com/oauth/authorize"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -39,7 +39,7 @@ def kakao_auth():
 
 
 # 엑세스 토큰을 저장할 변수
-@router.get("auth/callback")
+@router.post("/auth/callback")
 async def kakao_(
     auth: KakaoAuth,
     db: Session = Depends(get_db),
@@ -91,7 +91,7 @@ def get_kakao_token(*, auth: KakaoAuth):
     data = {
         "grant_type": "authorization_code",
         "client_id": REST_API_KEY,
-        "code": auth.authorization_code,
+        "code": auth.code,
         "redirect_uri": REDIRECT_URI,
     }
     _res = requests.post(_url, headers=headers, data=data)
