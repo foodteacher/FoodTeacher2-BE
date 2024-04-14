@@ -9,18 +9,17 @@ class UserCreate(UserBase):
     provider: str
     access_token: str
     refresh_token: str
-    jwt_refresh_token: str
 
 class UserUpdate(UserBase):
-    name: str = None
-    height: float = None
-    weight: float = None
-    age: int = None
-    gender: str = None
-    target_weight: float = None
-    access_token: str = None
-    refresh_token: str = None
-    jwt_refresh_token: str = None
+    name: str | None = None
+    height: float | None = None
+    weight: float | None = None
+    age: int | None = None
+    gender: str | None = None
+    target_weight: float | None = None
+    access_token: str | None = None
+    refresh_token: str | None = None
+    jwt_refresh_token: str | None = None
 
 class UserInput(BaseModel):
     query: str

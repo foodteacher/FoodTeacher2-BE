@@ -38,7 +38,7 @@ def create_jwt_refresh_token(subject: Union[str, Any]) -> str:
         expires_delta=timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         )
 
-def create_jwt_access_and_refresh_tokens(*, social_id: int, db: Session = Depends(get_db)) -> JWTCreate:
+def create_jwt_access_and_refresh_tokens(*, social_id: int) -> JWTCreate:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_jwt_token(subject=social_id, expires_delta=access_token_expires)
 
