@@ -7,7 +7,7 @@
     <button onclick="loginWithKakao()">Login with Kakao</button>
     <script>
         function loginWithKakao() {
-            const REST_API_KEY = '536cb646ce60d71102dc92d2b7845c8d';
+            const REST_API_KEY = '06496bedb86df7f2d9748e6a4df70213';
             const REDIRECT_URI = '"http://localhost:8000/login/kakao/auth/callback"';
             const kakaoAuthURL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
             window.location.href = kakaoAuthURL;

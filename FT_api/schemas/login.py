@@ -1,10 +1,8 @@
 from pydantic import BaseModel
 
-class AuthCode(BaseModel):
-    code: str
-
 class KakaoAuth(AuthCode):
     pass
 
-class NaverAuth(AuthCode):
+class NaverAuth(BaseModel):
+    code: str
     state: str

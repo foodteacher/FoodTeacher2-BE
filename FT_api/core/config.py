@@ -38,3 +38,4 @@ class Settings(BaseSettings):
 
 def get_setting():
     return Settings()
+

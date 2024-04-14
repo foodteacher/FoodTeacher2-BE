@@ -20,79 +20,65 @@ kakao_redirect_uri = KAKAO_REDIRECT_URI = (
         if ENV == "development"
         else "https://api2.foodteacher.xyz/login/kakao/auth/callback"
     )
-
-
-@router.get("/auth")
-def kakao_auth():
-    print(kakao_redirect_uri)
-    REST_API_KEY = settings.KAKAO_REST_API_KEY
-    url = "https://kauth.kakao.com/oauth/authorize"
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    data = {
-        "client_id": REST_API_KEY,
-        "redirect_uri": kakao_redirect_uri,
-        "response_type": "code",
-    }
-    requests.post(url, headers=headers, data=data)
-
-    return Response(status_code=200)
+REST_API_KEY = settings.KAKAO_REST_API_KEY
 
 
 # 엑세스 토큰을 저장할 변수
-@router.post("/auth/callback")
+@router.get("/auth/callback")
 async def kakao_(
-    auth: KakaoAuth,
+    code: str,
     db: Session = Depends(get_db),
 ):
-    kakao_token = get_kakao_token(auth=auth)
-    print(kakao_token)
+    kakao_token = get_kakao_token(code)
+
     return Response(status_code=200)
-    kakao_access_token = kakao_token.get("access_token")
-    kakao_refresh_token = kakao_token.get("refresh_token")
 
-    kakao_id = get_kakao_id(kakao_access_token)
-    user = crud_user.get_by_social_id(db, social_id=kakao_id)
-    jwt = create_jwt_access_and_refresh_tokens(db=db, social_id=kakao_id)
+    # kakao_access_token = kakao_token.get("access_token")
+    # kakao_refresh_token = kakao_token.get("refresh_token")
 
-    if not user:
-        new_user = UserCreate(
-            user_id=kakao_id,
-            provider="Kakao",
-            access_token=kakao_access_token,
-            refresh_token=kakao_refresh_token,
-            jwt_refresh_token=jwt.refresh_token,
-        )
-        crud_user.create(db, obj_in=new_user)
+    # kakao_id = get_kakao_id(kakao_access_token)
+    # user = crud_user.get_by_social_id(db, social_id=kakao_id)
+    # jwt = create_jwt_access_and_refresh_tokens(db=db, social_id=kakao_id)
 
-    content = JWTResp(accessToken=jwt.access_token)
-    # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
-    response = JSONResponse(
-        status_code=status.HTTP_200_OK, content=content.model_dump()
-    )
-    response.set_cookie(
-        key="refresh_token",
-        value=jwt.refresh_token,
-        httponly=True,
-        max_age=1800,
-        expires=1800,
-        samesite="none" if x_environment != "dev" else "lax",
-        secure=x_environment != "dev",
-    )
+    # if not user:
+    #     new_user = UserCreate(
+    #         user_id=kakao_id,
+    #         provider="Kakao",
+    #         access_token=kakao_access_token,
+    #         refresh_token=kakao_refresh_token,
+    #         jwt_refresh_token=jwt.refresh_token,
+    #     )
+    #     crud_user.create(db, obj_in=new_user)
 
-    return response
+    # content = JWTResp(accessToken=jwt.access_token)
+    # # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
+    # response = JSONResponse(
+    #     status_code=status.HTTP_200_OK, content=content.model_dump()
+    # )
+    # response.set_cookie(
+    #     key="refresh_token",
+    #     value=jwt.refresh_token,
+    #     httponly=True,
+    #     max_age=1800,
+    #     expires=1800,
+    #     samesite="none" if x_environment != "dev" else "lax",
+    #     secure=x_environment != "dev",
+    # )
+
+    # return response
 
 
-def get_kakao_token(*, auth: KakaoAuth):
-    REST_API_KEY = settings.KAKAO_REST_API_KEY
-    REDIRECT_URI = kakao_redirect_uri
+def get_kakao_token(code):
+    print("inside get_kakao_token")
+    print("REST_API_KEY: ", REST_API_KEY)
 
     _url = f"https://kauth.kakao.com/oauth/token"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = {
         "grant_type": "authorization_code",
         "client_id": REST_API_KEY,
-        "code": auth.code,
-        "redirect_uri": REDIRECT_URI,
+        "code": code,
+        "redirect_uri": kakao_redirect_uri,
     }
     _res = requests.post(_url, headers=headers, data=data)
 
