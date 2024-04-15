@@ -25,7 +25,6 @@ def naver_auth(
     naver_token = get_naver_token(code, state)
     naver_access_token = naver_token.get("access_token")
     naver_refresh_token = naver_token.get("refresh_token")
-    print(naver_token)
 
     naver_id = get_naver_id(naver_access_token)
     user = crud_user.get_by_social_id(db, social_id=naver_id)
