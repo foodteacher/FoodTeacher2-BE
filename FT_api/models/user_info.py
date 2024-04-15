@@ -11,7 +11,7 @@ class User(Base):
     provider: Mapped[str] = mapped_column(String(255))
     access_token: Mapped[str] = mapped_column(String(255))
     refresh_token: Mapped[str] = mapped_column(String(255))
-    jwt_refresh_token: Mapped[str] = mapped_column(String(255))
+    jwt_refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
     name: Mapped[str] = mapped_column(String(255), nullable=True)
     height: Mapped[float] = mapped_column(nullable=True)
     weight: Mapped[float] = mapped_column(nullable=True)
