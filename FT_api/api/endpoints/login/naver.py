@@ -6,7 +6,6 @@ from FT_api.core.config import get_setting
 from FT_api.core.security import create_jwt_access_and_refresh_tokens
 from FT_api.db.session import get_db
 from FT_api.schemas.token import JWTResp
-from FT_api.schemas.login import NaverAuth
 from FT_api.schemas.user import UserCreate, UserUpdate
 from FT_api.crud.user import crud_user
 
@@ -17,14 +16,16 @@ settings = get_setting()
 
 
 # 엑세스 토큰을 저장할 변수
-@router.post("/auth/callback")
+@router.get("/auth/callback")
 def naver_auth(
-    authorization: NaverAuth,
+    code: str,
+    state: str,
     db: Session = Depends(get_db),
 ):
-    naver_token = get_naver_token(authorization=authorization)
+    naver_token = get_naver_token(code, state)
     naver_access_token = naver_token.get("access_token")
     naver_refresh_token = naver_token.get("refresh_token")
+    print(naver_token)
 
     naver_id = get_naver_id(naver_access_token)
     user = crud_user.get_by_social_id(db, social_id=naver_id)
@@ -60,7 +61,7 @@ def naver_auth(
         return response
 
 
-def get_naver_token(authorization: NaverAuth):
+def get_naver_token(code: str, state: str):
     naver_client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_SECRET
 
@@ -72,8 +73,8 @@ def get_naver_token(authorization: NaverAuth):
         "grant_type": "authorization_code",
         "client_id": naver_client_id,
         "client_secret": client_secret,
-        "code": authorization.code,
-        "state": authorization.state,
+        "code": code,
+        "state": state,
     }
     _res = requests.post(_url, headers=headers, data=data)
 
@@ -92,7 +93,8 @@ def get_naver_id(naver_access_token):
     url = "https://openapi.naver.com/v1/nid/me"
 
     response = requests.get(url, headers=headers)
-
+    print(response.status_code)
+    print(response.content)
     if response.status_code == 200:
         response_naver = response.json()
         return response_naver.get("response").get("id")
