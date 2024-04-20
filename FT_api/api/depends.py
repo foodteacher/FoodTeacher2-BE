@@ -47,7 +47,3 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
     
     return user
         
-
-
-def get_refresh_token(refresh_token: str = Cookie(None)):
-    return refresh_token

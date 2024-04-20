@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Header
-from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
 from FT_api.core.security import create_jwt_access_and_refresh_tokens
 from FT_api.db.session import get_db
-from FT_api.schemas.token import JWTResp
 from FT_api.schemas.user import UserCreate, UserUpdate
 from FT_api.crud.user import crud_user
 
@@ -37,27 +36,13 @@ def naver_auth(
             refresh_token=naver_refresh_token,
         )
         crud_user.create(db, obj_in=new_user)
-    else:
-        jwt = create_jwt_access_and_refresh_tokens(social_id=naver_id)
-        update_data = UserUpdate(refresh_token=jwt.refresh_token)
-        crud_user.update(db, db_obj=user, obj_in=update_data)
 
-        content = JWTResp(accessToken=jwt.access_token)
-        # 쿠키에 refresh_token 설정, SameSite=None 및 secure=True 추가
-        response = JSONResponse(
-            status_code=status.HTTP_200_OK, content=content.model_dump()
-        )
-        response.set_cookie(
-            key="refresh_token",
-            value=jwt.refresh_token,
-            httponly=True,
-            max_age=1800,
-            expires=1800,
-            samesite="none",
-            secure=True,
-        )
+    jwt = create_jwt_access_and_refresh_tokens(social_id=naver_id)
+    update_data = UserUpdate(refresh_token=jwt.refresh_token)
+    crud_user.update(db, db_obj=user, obj_in=update_data)
 
-        return response
+    url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
+    return RedirectResponse(url=url)
 
 
 def get_naver_token(code: str, state: str):

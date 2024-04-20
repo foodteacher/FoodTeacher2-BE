@@ -33,9 +33,8 @@ class Settings(BaseSettings):
     # chatGPT
     OPENAI_API_KEY: str
 
-    model_config = SettingsConfigDict(env_file='.env',  extra='ignore')
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 def get_setting():
     return Settings()
-
