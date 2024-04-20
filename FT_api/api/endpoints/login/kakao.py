@@ -52,7 +52,7 @@ def kakao_auth(
     update_data = UserUpdate(refresh_token=jwt.refresh_token)
     crud_user.update(db, db_obj=user, obj_in=update_data)
 
-    url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
+    url = f"http://localhost:3000/auth?accessToken={jwt.access_token}"
     return RedirectResponse(url=url)
 
 
