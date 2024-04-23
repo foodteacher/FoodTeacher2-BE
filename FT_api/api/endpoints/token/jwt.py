@@ -8,7 +8,7 @@ from FT_api.core.config import get_setting
 from FT_api.core.security import create_jwt_access_token, create_jwt_refresh_token
 from FT_api.schemas.token import JWTResp
 from FT_api.schemas.user import UserUpdate
-from FT_api.api.depends import decode_jwt
+from FT_api.api.depends import decode_expried_jwt, decode_jwt
 from FT_api.api.depends import reusable_oauth2
 from FT_api.crud.user import crud_user
 from FT_api.db.session import get_db
@@ -22,7 +22,7 @@ def get_jwt_access_token(
     access_token: str = Depends(reusable_oauth2), db: Session = Depends(get_db)
 ):
     print(access_token)
-    ac_token_data = decode_jwt(access_token)
+    ac_token_data = decode_expried_jwt(access_token)
     ac_sub = ac_token_data.sub
     print(ac_token_data)
 

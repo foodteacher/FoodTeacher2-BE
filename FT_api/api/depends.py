@@ -35,6 +35,22 @@ def decode_jwt(token) -> TokenPayload:
     
     return token_data
 
+def decode_expried_jwt(token) -> TokenPayload:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY, algorithms=[settings.ALGORITHM],
+            options={"verify_exp": False},
+        )
+        token_data = TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="error occured while decoding jwt",
+        )
+    
+    return token_data
+
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> User:
     token_data = decode_jwt(token)
 
