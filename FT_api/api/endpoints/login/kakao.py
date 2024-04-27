@@ -26,11 +26,21 @@ REST_API_KEY = settings.KAKAO_REST_API_KEY
 
 
 # 엑세스 토큰을 저장할 변수
-@router.get("/auth/callback")
+@router.get(
+    "/auth/callback",
+    # openapi_extra={
+    #     "requestBody": {
+    #         "content": {"application/x-yaml": {"schema": Item.model_json_schema()}},
+    #         "required": True,
+    #     },
+    # },
+)
 def kakao_auth(
     code: str,
+    state: str | None,
     db: Session = Depends(get_db),
 ):
+    print(state)
     kakao_token = get_kakao_token(code)
 
     kakao_access_token = kakao_token.get("access_token")

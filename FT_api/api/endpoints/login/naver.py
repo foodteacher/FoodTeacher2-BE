@@ -41,7 +41,10 @@ def naver_auth(
     update_data = UserUpdate(refresh_token=jwt.refresh_token)
     crud_user.update(db, db_obj=user, obj_in=update_data)
 
-    url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
+    if state == 'dev':
+        url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
+    else:
+        url = f'http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}'
     return RedirectResponse(url=url)
 
 
