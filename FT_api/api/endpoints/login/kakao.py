@@ -32,9 +32,6 @@ def kakao_auth(
     state: str | None,
     db: Session = Depends(get_db),
 ):
-    url = f'http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}'
-    if state == 'dev':
-        url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
 
     kakao_token = get_kakao_token(code)
 
@@ -43,6 +40,12 @@ def kakao_auth(
 
     kakao_id = get_kakao_id(kakao_access_token)
     user = crud_user.get_by_social_id(db, social_id=kakao_id)
+
+    jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)  
+    url = f'http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}'
+    if state == 'dev':
+        url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
+
 
     if not user:
         new_user = UserCreate(
@@ -53,11 +56,9 @@ def kakao_auth(
         )
         crud_user.create(db, obj_in=new_user)
 
-        jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)
 
         return RedirectResponse(url=url)
 
-    jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)
     update_data = UserUpdate(refresh_token=jwt.refresh_token)
     crud_user.update(db, db_obj=user, obj_in=update_data)
 
