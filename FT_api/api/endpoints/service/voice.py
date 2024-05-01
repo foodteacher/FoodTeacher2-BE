@@ -10,10 +10,14 @@ router = APIRouter()
 settings = get_setting()
 
 
-@router.post("/tts")
-def text_to_speech(request: TTSRequest):
+@router.get("/tts")
+def text_to_speech(text: str):
+    speaker: str = "nara"
+    volume: int = 0
+    speed: int = 0
+    pitch: int = 0
     url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
-    data = f"speaker={request.speaker}&volume={request.volume}&speed={request.speed}&pitch={request.pitch}&format=mp3&text={urllib.parse.quote(request.text)}"
+    data = f"speaker={speaker}&volume={volume}&speed={speed}&pitch={pitch}&format=mp3&text={urllib.parse.quote(text)}"
 
     request = urllib.request.Request(url)
     request.add_header("X-NCP-APIGW-API-KEY-ID", settings.NCP_CLIENT_ID)
