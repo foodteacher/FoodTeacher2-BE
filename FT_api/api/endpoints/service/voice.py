@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from FT_api.core.config import get_setting
 
-from FT_api.schemas.voice import TTSRequest
 import urllib.request
 import urllib.parse
 
