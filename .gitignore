@@ -5,4 +5,4 @@ __pycache__/
 # env 파일
 .env
 # 임시테스트 html
-/temp.html
+temp.html/

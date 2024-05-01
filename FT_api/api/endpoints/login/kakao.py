@@ -26,20 +26,16 @@ REST_API_KEY = settings.KAKAO_REST_API_KEY
 
 
 # 엑세스 토큰을 저장할 변수
-@router.get(
-    "/auth/callback",
-    # openapi_extra={
-    #     "requestBody": {
-    #         "content": {"application/x-yaml": {"schema": Item.model_json_schema()}},
-    #         "required": True,
-    #     },
-    # },
-)
+@router.get("/auth/callback",)
 def kakao_auth(
     code: str,
     state: str | None,
     db: Session = Depends(get_db),
 ):
+    url = f'http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}'
+    if state == 'dev':
+        url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
+
     kakao_token = get_kakao_token(code)
 
     kakao_access_token = kakao_token.get("access_token")
@@ -57,13 +53,13 @@ def kakao_auth(
         )
         crud_user.create(db, obj_in=new_user)
 
+        jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)
+
+        return RedirectResponse(url=url)
+
     jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)
     update_data = UserUpdate(refresh_token=jwt.refresh_token)
     crud_user.update(db, db_obj=user, obj_in=update_data)
-
-    url = f'http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}'
-    if state == 'dev':
-        url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
 
     return RedirectResponse(url=url)
 

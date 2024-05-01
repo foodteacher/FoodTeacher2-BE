@@ -18,10 +18,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     # 60 minutes * 24 hours * 7 days = 7 days
-    # ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
-    # REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 5
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
 
     # kakao 설정 정보
     KAKAO_REST_API_KEY: str
@@ -29,6 +27,10 @@ class Settings(BaseSettings):
     # naver
     NAVER_CLIENT_ID: str
     NAVER_SECRET: str
+
+    # NCP
+    NCP_CLIENT_ID: str
+    NCP_CLIENT_SECRET: str
 
     # chatGPT
     OPENAI_API_KEY: str

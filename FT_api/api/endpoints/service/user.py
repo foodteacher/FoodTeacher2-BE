@@ -16,7 +16,21 @@ router = APIRouter()
 settings = get_setting()
 
 
-@router.get("/info", response_model=UserInDBBase)
+@router.get(
+    "/info",
+    # response_model=UserInDBBase,
+    # responses={
+    #     404: {"model": "UserInDBBase", "description": "The item was not found"},
+    #     200: {
+    #         "description": "Item requested by ID",
+    #         "content": {
+    #             "application/json": {
+    #                 "example": {"id": "bar", "value": "The bar tenders"}
+    #             }
+    #         },
+    #     },
+    # },
+)
 def get_user_info(current_user: User = Depends(get_current_user)):
     return current_user
 

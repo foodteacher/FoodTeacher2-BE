@@ -6,10 +6,10 @@ if __name__ == "__main__":
     )
 
 # if __name__ == "__main__":
-#     uvicorn.run(
-#         "FT_api.main:FT_api",
-#         host="localhost",
-#         port=8000,
-#         reload=True,
-#         proxy_headers=True,
-#     )
+# uvicorn.run(
+#     "FT_api.main:FT_api",
+#     host="localhost",
+#     port=8000,
+#     reload=True,
+#     proxy_headers=True,
+# )
