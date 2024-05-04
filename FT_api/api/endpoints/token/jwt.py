@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-
-from sqlalchemy.orm import Session
-
 from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
 from FT_api.core.security import create_jwt_access_token, create_jwt_refresh_token

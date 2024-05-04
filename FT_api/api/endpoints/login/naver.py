@@ -1,3 +1,5 @@
+import requests
+
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -7,8 +9,6 @@ from FT_api.core.security import create_jwt_access_and_refresh_tokens
 from FT_api.db.session import get_db
 from FT_api.schemas.user import UserCreate, UserUpdate
 from FT_api.crud.user import crud_user
-
-import requests
 
 router = APIRouter()
 settings = get_setting()

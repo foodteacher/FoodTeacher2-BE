@@ -1,12 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
-from fastapi import Depends
-
 from jose import jwt
 from passlib.context import CryptContext
 
-from sqlalchemy.orm import Session
-from FT_api.db.session import get_db
 from FT_api.core.config import get_setting
 from FT_api.schemas.token import JWTCreate
 

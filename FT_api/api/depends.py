@@ -1,17 +1,16 @@
-import json
-
-from fastapi import Depends, HTTPException, status, Cookie
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from FT_api.core.config import get_setting
 from FT_api.models.user_info import User
 from FT_api.crud.user import crud_user
 from FT_api.schemas.token import TokenPayload
-
 from FT_api.db.session import get_db
+
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/")
 settings = get_setting()
