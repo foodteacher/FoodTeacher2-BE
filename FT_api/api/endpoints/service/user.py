@@ -18,18 +18,24 @@ settings = get_setting()
 
 @router.get(
     "/info",
-    # response_model=UserInDBBase,
-    # responses={
-    #     404: {"model": "UserInDBBase", "description": "The item was not found"},
-    #     200: {
-    #         "description": "Item requested by ID",
-    #         "content": {
-    #             "application/json": {
-    #                 "example": {"id": "bar", "value": "The bar tenders"}
-    #             }
-    #         },
-    #     },
-    # },
+    response_model=UserInDBBase,
+    responses={
+        404: {"model": UserInDBBase},
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "name": "서경원",
+                        "height": 190,
+                        "weight": 82,
+                        "age": 28,
+                        "gender": "male",
+                        "target_weight": 30,
+                    }
+                }
+            },
+        },
+    },
 )
 def get_user_info(current_user: User = Depends(get_current_user)):
     return current_user

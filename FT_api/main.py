@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from FT_api.api.api import api_router
+from FT_api.api.urls import api_router
 
 FT_api = FastAPI()
 
