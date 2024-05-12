@@ -12,7 +12,7 @@ from FT_api.schemas.token import TokenPayload
 from FT_api.db.session import get_db
 
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login")
 settings = get_setting()
 
 def decode_jwt(token) -> TokenPayload:
