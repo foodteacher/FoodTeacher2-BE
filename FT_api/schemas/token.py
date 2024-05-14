@@ -1,12 +1,17 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
 
 class TokenPayload(BaseModel):
     sub: str | None = None
     exp: int | None = None
 
+
 class JWTCreate(BaseModel):
     access_token: str | None = None
     refresh_token: str | None = None
 
+
 class JWTResp(BaseModel):
-    accessToken: str | None = None
+    access_token: str = Field(
+        ..., alias="accessToken", title="Access Token", description="JWT Access Token"
+    )
