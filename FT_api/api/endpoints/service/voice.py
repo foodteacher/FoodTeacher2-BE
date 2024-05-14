@@ -5,14 +5,22 @@ from fastapi.responses import StreamingResponse
 
 from FT_api.core.config import get_setting
 from FT_api.schemas.voice import TTSRequest
-from FT_api.core.custom_mixin import response_dic
 
 
 router = APIRouter()
 settings = get_setting()
 
 
-@router.post("/tts", responses=response_dic)
+@router.post(
+    "/tts",
+    response_class=StreamingResponse,
+    responses={
+        200: {
+            "description": "Successful response with the audio stream",
+            "content": {"audio/mpeg": {}}
+        },
+    }
+)
 def text_to_speech(request: TTSRequest):
     url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
     headers = {
