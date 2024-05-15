@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Any
-from enum import Enum
-
+from datetime import date
 
 class UserBase(BaseModel):
     name: str = Field(None, title="Name", description="이름", example="홍길동")
@@ -19,7 +18,7 @@ class UserBase(BaseModel):
         example=80.5,
         ge=0.0,
     )
-    age: int = Field(None, title="Age", description="나이", example=30, ge=0)
+    birthday: date = Field(None, title="Birthday", description="생년월일", example="1994-06-07")
     gender: str = Field(None, title="Gender", description="성별", example="male")
     target_weight: float = Field(
         None,
