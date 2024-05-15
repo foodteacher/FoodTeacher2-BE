@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Any
 from datetime import date
 
+
 class UserBase(BaseModel):
     name: str = Field(None, title="Name", description="이름", example="홍길동")
     height: float = Field(
@@ -18,7 +19,9 @@ class UserBase(BaseModel):
         example=80.5,
         ge=0.0,
     )
-    birthday: date = Field(None, title="Birthday", description="생년월일", example="1994-06-07")
+    birthday: date = Field(
+        None, title="Birthday", description="생년월일", example="1994-06-07"
+    )
     gender: str = Field(None, title="Gender", description="성별", example="male")
     target_weight: float = Field(
         None,
@@ -28,8 +31,9 @@ class UserBase(BaseModel):
         example=65.0,
         ge=0.0,
     )
-    blood_type: str = Field(None, alias="bloodType", title="Blood Type", description="혈액형", examples="B")
-
+    blood_type: str = Field(
+        None, alias="bloodType", title="Blood Type", description="혈액형", example="B"
+    )
 
 
 class UserCreate(UserBase):
