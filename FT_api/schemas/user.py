@@ -28,6 +28,8 @@ class UserBase(BaseModel):
         example=65.0,
         ge=0.0,
     )
+    blood_type: str = Field(None, alias="bloodType", title="Blood Type", description="혈액형", examples="B")
+
 
 
 class UserCreate(UserBase):
