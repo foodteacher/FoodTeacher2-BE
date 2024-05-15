@@ -24,7 +24,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from FT_api.db.session import Base
-from FT_api.models.user_info import User
+from FT_api.models.user import User
 
 target_metadata = Base.metadata
 

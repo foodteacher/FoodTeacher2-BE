@@ -71,24 +71,3 @@ class UserResp(UserBase):
 
 class UserUpdateReq(UserBase):
     pass
-
-
-# class HealthGoalOption(Enum):
-#     근력강화 = "근력강화"
-#     건강유지 = "건강유지"
-#     체중감량 = "체중감량"
-#     아직_목표가_없어요 = "아직 목표가 없어요"
-#     직접_입력할래요 = "직접 입력할래요"
-
-
-# class HealthGoal(BaseModel):
-#     goal: HealthGoalOption = Field(
-#         ..., example="근력강화", description="사용자의 건강 목표"
-#     )
-
-
-# # 예시: Pydantic 모델을 확장하여 사용자 입력을 받는 경우
-# class CustomHealthGoal(BaseModel):
-#     custom_goal: str = Field(
-#         ..., example="마라톤 완주", description="사용자가 직접 입력한 건강 목표"
-#     )

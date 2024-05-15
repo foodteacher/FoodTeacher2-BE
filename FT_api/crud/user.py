@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Union
 from sqlalchemy.orm import Session
 
 from FT_api.crud.base import CRUDBase
-from FT_api.models.user_info import User
+from FT_api.models.user import User
 from FT_api.schemas.user import UserCreate, UserUpdate
 
 
