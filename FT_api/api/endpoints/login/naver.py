@@ -30,7 +30,7 @@ def naver_auth(
 
     if not user:
         new_user = UserCreate(
-            user_id=naver_id,
+            user_social_id=naver_id,
             provider="Naver",
             access_token=naver_access_token,
             refresh_token=naver_refresh_token,

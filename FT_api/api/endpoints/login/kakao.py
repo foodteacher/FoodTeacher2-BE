@@ -48,7 +48,7 @@ def kakao_auth(
 
     if not user:
         new_user = UserCreate(
-            user_id=kakao_id,
+            user_social_id=kakao_id,
             provider="Kakao",
             access_token=kakao_access_token,
             refresh_token=kakao_refresh_token,

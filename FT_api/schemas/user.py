@@ -37,7 +37,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    user_id: str | int = Field(..., title="User ID", description="유저 아이디")
+    user_social_id: str | int = Field(..., title="User Social ID", description="유저 아이디")
     provider: str = Field(
         ..., title="Provider", description="소셜 로그인", examples="Naver"
     )
