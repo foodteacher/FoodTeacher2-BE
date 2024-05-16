@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Any
+from typing import Any, List, Dict
 from datetime import date
 
 
@@ -71,3 +71,31 @@ class UserResp(UserBase):
 
 class UserUpdateReq(UserBase):
     pass
+
+
+class OptionResp(BaseModel):
+    id: int
+    order: int
+    text: str
+    selected: bool
+
+
+class CurrentMedicineResp(BaseModel):
+    name: str
+    frequency: int
+
+
+class ReasonMedicineResp(BaseModel):
+    reason: str
+
+
+class PastMedicineResp(BaseModel):
+    text: str
+
+class QuestionResp(BaseModel):
+    text: str
+    options: List[OptionResp]
+
+class SurveyPageResp(BaseModel):
+    page: int
+    questions: List[QuestionResp]

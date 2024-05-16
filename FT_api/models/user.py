@@ -8,7 +8,7 @@ from FT_api.db.session import Base
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    user_social_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     provider: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     access_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     refresh_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
@@ -44,6 +44,7 @@ class Option(Base):
         Integer, ForeignKey("survey_questions.id"), nullable=False
     )
     text: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
+    order: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     survey_question: Mapped["SurveyQuestion"] = relationship(
         "SurveyQuestion", back_populates="options"
