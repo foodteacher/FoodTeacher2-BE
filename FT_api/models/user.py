@@ -1,7 +1,7 @@
-from datetime import date
 from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey, Date
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import Optional, List
+from datetime import date
 from FT_api.db.session import Base
 
 
@@ -12,7 +12,9 @@ class User(Base):
     provider: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     access_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     refresh_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    jwt_refresh_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    jwt_refresh_token: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     height: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
@@ -21,94 +23,88 @@ class User(Base):
     blood_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     target_weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
-    survey_responses: Mapped[List["SurveyResponse"]] = relationship(
-        "SurveyResponse", back_populates="user"
+    responses: Mapped[List["UserResponse"]] = relationship(
+        "UserResponse", back_populates="user"
     )
 
 
-class SurveyQuestion(Base):
-    __tablename__ = "survey_questions"
+class Survey(Base):
+    __tablename__ = "surveys"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    description: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
+
+    questions: Mapped[List["Question"]] = relationship(
+        "Question", back_populates="survey"
+    )
+    responses: Mapped[List["UserResponse"]] = relationship(
+        "UserResponse", back_populates="survey"
+    )
+
+
+class Question(Base):
+    __tablename__ = "questions"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    survey_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("surveys.id"), nullable=False
+    )
     text: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
     order: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    page_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
+    survey: Mapped["Survey"] = relationship("Survey", back_populates="questions")
     options: Mapped[List["Option"]] = relationship(
-        "Option", back_populates="survey_question"
+        "Option", back_populates="question", foreign_keys="[Option.question_id]"
+    )
+    responses: Mapped[List["UserResponse"]] = relationship(
+        "UserResponse", back_populates="question"
     )
 
 
 class Option(Base):
     __tablename__ = "options"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    survey_question_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("survey_questions.id"), nullable=False
+    question_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("questions.id"), nullable=False
     )
     text: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
     order: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    next_question_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("questions.id"), nullable=True
+    )  # 다음 질문으로 연결
 
-    survey_question: Mapped["SurveyQuestion"] = relationship(
-        "SurveyQuestion", back_populates="options"
+    question: Mapped["Question"] = relationship(
+        "Question", back_populates="options", foreign_keys="[Option.question_id]"
     )
-    survey_responses: Mapped[List["SurveyResponse"]] = relationship(
-        "SurveyResponse", back_populates="option"
+    next_question: Mapped[Optional["Question"]] = relationship(
+        "Question", remote_side=[Question.id], foreign_keys="[Option.next_question_id]"
+    )
+    responses: Mapped[List["UserResponse"]] = relationship(
+        "UserResponse", back_populates="option"
     )
 
 
-class SurveyResponse(Base):
-    __tablename__ = "survey_response"
+class UserResponse(Base):
+    __tablename__ = "user_responses"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
     )
-    option_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("options.id"), nullable=False
+    survey_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("surveys.id"), nullable=False
     )
-
-    user: Mapped["User"] = relationship("User", back_populates="survey_responses")
-    option: Mapped["Option"] = relationship("Option", back_populates="survey_responses")
-    current_medicine: Mapped["CurrentMedicine"] = relationship(
-        "CurrentMedicine", back_populates="survey_response"
+    question_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("questions.id"), nullable=False
     )
-    past_medicine: Mapped["PastMedicine"] = relationship(
-        "PastMedicine", back_populates="survey_response"
+    option_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("options.id"), nullable=True
     )
-    reason_medicine: Mapped["ReasonMedicine"] = relationship(
-        "ReasonMedicine", back_populates="survey_response"
-    )
+    type: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    response: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
-
-class CurrentMedicine(Base):
-    __tablename__ = "current_medicine"
-    survey_response_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("survey_response.id"), primary_key=True
-    )
-    name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    frequency: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-
-    survey_response: Mapped["SurveyResponse"] = relationship(
-        "SurveyResponse", back_populates="current_medicine"
-    )
-
-
-class PastMedicine(Base):
-    __tablename__ = "past_medicine"
-    survey_response_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("survey_response.id"), primary_key=True
-    )
-    description: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
-
-    survey_response: Mapped["SurveyResponse"] = relationship(
-        "SurveyResponse", back_populates="past_medicine"
-    )
-
-
-class ReasonMedicine(Base):
-    __tablename__ = "reason_medicine"
-    survey_response_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("survey_response.id"), primary_key=True
-    )
-    reason: Mapped[Optional[Text]] = mapped_column(Text, nullable=True)
-
-    survey_response: Mapped["SurveyResponse"] = relationship(
-        "SurveyResponse", back_populates="reason_medicine"
+    user: Mapped["User"] = relationship("User", back_populates="responses")
+    survey: Mapped["Survey"] = relationship("Survey", back_populates="responses")
+    question: Mapped["Question"] = relationship("Question", back_populates="responses")
+    option: Mapped[Optional["Option"]] = relationship(
+        "Option", back_populates="responses"
     )
