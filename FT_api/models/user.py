@@ -12,9 +12,7 @@ class User(Base):
     provider: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     access_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     refresh_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    jwt_refresh_token: Mapped[Optional[str]] = mapped_column(
-        String(255), nullable=True
-    )
+    jwt_refresh_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     height: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
@@ -23,8 +21,8 @@ class User(Base):
     blood_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     target_weight: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
-    responses: Mapped[List["UserResponse"]] = relationship(
-        "UserResponse", back_populates="user"
+    answers: Mapped[List["UserAnswers"]] = relationship(
+        "UserAnswers", back_populates="user"
     )
 
 
@@ -37,8 +35,8 @@ class Survey(Base):
     questions: Mapped[List["Question"]] = relationship(
         "Question", back_populates="survey"
     )
-    responses: Mapped[List["UserResponse"]] = relationship(
-        "UserResponse", back_populates="survey"
+    answers: Mapped[List["UserAnswers"]] = relationship(
+        "UserAnswers", back_populates="survey"
     )
 
 
@@ -56,8 +54,8 @@ class Question(Base):
     options: Mapped[List["Option"]] = relationship(
         "Option", back_populates="question", foreign_keys="[Option.question_id]"
     )
-    responses: Mapped[List["UserResponse"]] = relationship(
-        "UserResponse", back_populates="question"
+    answers: Mapped[List["UserAnswers"]] = relationship(
+        "UserAnswers", back_populates="question"
     )
 
 
@@ -79,13 +77,13 @@ class Option(Base):
     next_question: Mapped[Optional["Question"]] = relationship(
         "Question", remote_side=[Question.id], foreign_keys="[Option.next_question_id]"
     )
-    responses: Mapped[List["UserResponse"]] = relationship(
-        "UserResponse", back_populates="option"
+    answers: Mapped[List["UserAnswers"]] = relationship(
+        "UserAnswers", back_populates="option"
     )
 
 
-class UserResponse(Base):
-    __tablename__ = "user_responses"
+class UserAnswers(Base):
+    __tablename__ = "user_answers"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
@@ -94,17 +92,23 @@ class UserResponse(Base):
         Integer, ForeignKey("surveys.id"), nullable=False
     )
     question_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("questions.id"), nullable=False
+        Integer, ForeignKey("questions.id"), nullable=True
     )
     option_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("options.id"), nullable=True
     )
+    """
+    0: 답변 한개
+    1: 답변 여러개
+    2: 직접 입력할래요.
+    3: 약복용 + 횟수
+    """
     type: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    response: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    answer: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
-    user: Mapped["User"] = relationship("User", back_populates="responses")
-    survey: Mapped["Survey"] = relationship("Survey", back_populates="responses")
-    question: Mapped["Question"] = relationship("Question", back_populates="responses")
+    user: Mapped["User"] = relationship("User", back_populates="answers")
+    survey: Mapped["Survey"] = relationship("Survey", back_populates="answers")
+    question: Mapped["Question"] = relationship("Question", back_populates="answers")
     option: Mapped[Optional["Option"]] = relationship(
-        "Option", back_populates="responses"
+        "Option", back_populates="answers"
     )

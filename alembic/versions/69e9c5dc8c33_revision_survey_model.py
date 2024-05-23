@@ -63,7 +63,6 @@ def upgrade() -> None:
     op.add_column('users', sa.Column('jwt_rfresh_token', sa.String(length=255), nullable=True))
     op.add_column('users', sa.Column('tartget_weight', sa.Float(), nullable=True))
     op.drop_column('users', 'user_social_id')
-    op.drop_column('users', 'jwt_refresh_token')
     op.drop_column('users', 'target_weight')
     # ### end Alembic commands ###
 

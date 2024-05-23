@@ -74,28 +74,3 @@ class UserResp(UserBase):
 class UserUpdateReq(UserBase):
     pass
 
-class OptionRespSchema(BaseModel):
-    id: int
-    text: Optional[str]
-    selected: Optional[bool]
-    next_question_id: Optional[int]
-
-class QuestionRespSchema(BaseModel):
-    id: int
-    text: Optional[str]
-    page_number: Optional[int]
-    options: List[OptionRespSchema]
-    response: Optional[dict]  # {option_id, text_response, rating_response}
-
-class SurveyRespSchema(BaseModel):
-    id: int
-    title: Optional[str]
-    description: Optional[str]
-    questions: List[QuestionRespSchema]
-
-class UserRespSchema(BaseModel):
-    user_id: int
-    survey_id: int
-    question_id: int
-    option_id: int
-    user_response: str
