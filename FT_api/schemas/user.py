@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 from datetime import date
 
 
@@ -37,7 +37,9 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    user_social_id: str | int = Field(..., title="User Social ID", description="유저 아이디")
+    user_social_id: str | int = Field(
+        ..., title="User Social ID", description="유저 아이디"
+    )
     provider: str = Field(
         ..., title="Provider", description="소셜 로그인", examples="Naver"
     )
@@ -72,30 +74,3 @@ class UserResp(UserBase):
 class UserUpdateReq(UserBase):
     pass
 
-
-class OptionResp(BaseModel):
-    id: int
-    order: int
-    text: str
-    selected: bool
-
-
-class CurrentMedicineResp(BaseModel):
-    name: str
-    frequency: int
-
-
-class ReasonMedicineResp(BaseModel):
-    reason: str
-
-
-class PastMedicineResp(BaseModel):
-    text: str
-
-class QuestionResp(BaseModel):
-    text: str
-    options: List[OptionResp]
-
-class SurveyPageResp(BaseModel):
-    page: int
-    questions: List[QuestionResp]
