@@ -89,6 +89,7 @@ class SurveyAnswerReqSchema(BaseModel):
     )
     text_answer: Dict[str, str | int] = Field(
         None,
+        validation_alias="textAnswer",
         title="Text Answer",
         description="텍스트 응답 (질문 ID와 응답 텍스트의 매핑, '직접 입력할래요'의 경우)",
         example={"optionId": 1, "answer": "answer1"},

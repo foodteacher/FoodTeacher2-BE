@@ -109,6 +109,7 @@ def save_answers(
 ):
     """
     **유저의 설문 답변을 저장**
+    # textAnswer는 "직접 입력할래요"의 답변을 저장
     """
     for user_answer in user_answers:
         db_user_answers = (
