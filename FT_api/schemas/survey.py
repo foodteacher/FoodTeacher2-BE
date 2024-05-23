@@ -87,9 +87,9 @@ class SurveyAnswerReqSchema(BaseModel):
         description="선택된 옵션 ID 목록",
         examples=[1, 2, 3],
     )
-    text_answer: Dict[int, str] = Field(
+    text_answer: Dict[str, str | int] = Field(
         None,
         title="Text Answer",
         description="텍스트 응답 (질문 ID와 응답 텍스트의 매핑, '직접 입력할래요'의 경우)",
-        example={1: "응답1", 2: "응답2"},
+        example={"optionId": 1, "answer": "answer1"},
     )

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Body
 
 from sqlalchemy.orm import Session
 
@@ -81,7 +81,29 @@ def get_survey(
 @router.post("/{survey_id}/answers")
 def save_answers(
     survey_id: int,
-    user_answers: List[SurveyAnswerReqSchema],
+    user_answers: List[SurveyAnswerReqSchema] = Body(
+        ...,
+        example=[
+            {
+                "questionId": 1,
+                "optionIdList": [1],
+            },
+            {
+                "questionId": 2,
+                "optionIdList": [7, 10],
+            },
+            {
+                "questionId": 3,
+                "optionIdList": [],
+                "textAnswer": {"optionId": 1, "answer": "answer1"},
+            },
+            {
+                "questionId": 4,
+                "optionIdList": [22, 25],
+                "textAnswer": {"optionId": 4, "answer": "answer2"},
+            },
+        ],
+    ),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -123,7 +145,8 @@ def save_answers(
                 user_id=current_user.id,
                 survey_id=survey_id,
                 question_id=user_answer.question_id,
-                answer=user_answer.text_answer.get(user_answer.question_id, ""),
+                option_id=user_answer.text_answer.get("optionId"),
+                answer=user_answer.text_answer.get("answer", ""),
                 type=(
                     2 if not user_answer.question_id == 8 else 3
                 ),  # '직접 입력할래요' 유형으로 설정
