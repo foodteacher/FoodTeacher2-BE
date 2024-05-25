@@ -3,7 +3,7 @@ from typing import Optional, List, Dict
 
 
 class SurveysRespSchema(BaseModel):
-    survey_id: int = Field(
+    id: int = Field(
         ...,
         serialization_alias="surveyId",
         title="Survey ID",
