@@ -160,17 +160,19 @@ def save_answers(
     return Response(content="success")
 
 
-@router.get("/question", response_model=QuestionReadRespSchema)
+@router.get("/question/", response_model=QuestionReadRespSchema)
 def get_question(
-    survey_id: int = Query(..., validation_alias="surveyId"),
-    question_id: int = Query(..., validation_alias="questionId"),
+    survey_id: int = Query(..., alias="surveyId"),
+    question_id: int = Query(..., alias="questionId"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-
+    '''
+    질문 특정 질문을 조회
+    '''
     question = (
         db.query(Question)
-        .filter_by(survey_id=survey_id, question_id=question_id)
+        .filter_by(survey_id=survey_id, id=question_id)
         .first()
     )
 
