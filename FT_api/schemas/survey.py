@@ -21,13 +21,13 @@ class OptionRespSchema(BaseModel):
         description="문항 ID",
         example=1,
     )
-    text: str = Field(
+    text: Optional[str] = Field(
         None,
         title="Text",
         description="문항",
         example="꽁꽁 얼어붙은 한강 위로 고양이가 거어다닙니다.",
     )
-    selected: bool = Field(
+    selected: Optional[bool] = Field(
         None, title="Selected", description="문항 선택 여부", example=True
     )
     next_question_id: Optional[int] = Field(
@@ -80,14 +80,14 @@ class SurveyAnswerReqSchema(BaseModel):
         description="문제 ID",
         example=1,
     )
-    option_id_list: List[int] = Field(
+    option_id_list: Optional[List[int]] = Field(
         None,
         validation_alias="optionIdList",
         title="Option ID List",
         description="선택된 옵션 ID 목록",
         examples=[1, 2, 3],
     )
-    text_answer: Dict[str, str | int] = Field(
+    text_answer: Optional[Dict[str, str | int]] = Field(
         None,
         validation_alias="textAnswer",
         title="Text Answer",

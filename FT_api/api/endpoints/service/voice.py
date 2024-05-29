@@ -1,6 +1,6 @@
 import requests
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 from FT_api.core.config import get_setting

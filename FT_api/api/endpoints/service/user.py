@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from typing import List
 

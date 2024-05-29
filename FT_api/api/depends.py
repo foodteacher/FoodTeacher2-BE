@@ -11,7 +11,6 @@ from FT_api.models.user import User
 from FT_api.crud.user import crud_user
 from FT_api.schemas.token import TokenPayload
 from FT_api.db.session import get_db
-from FT_api.core.security import create_jwt_access_token
 
 
 settings = get_setting()
