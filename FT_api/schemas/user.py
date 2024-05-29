@@ -1,38 +1,38 @@
 from pydantic import BaseModel, Field
-from typing import Any, List, Dict, Optional
+from typing import Optional
 from datetime import date
 
 
 class UserBase(BaseModel):
-    name: str = Field(None, title="Name", description="이름", example="홍길동")
-    height: float = Field(
+    name: Optional[str] = Field(None, title="Name", description="이름", example="홍길동")
+    height: Optional[float] = Field(
         None,
         title="Height",
         description="키(meter)",
         example=180.5,
         ge=0.0,
     )
-    weight: float = Field(
+    weight: Optional[float] = Field(
         None,
         title="Weight",
         description="몸무게(kilogram)",
         example=80.5,
         ge=0.0,
     )
-    birthday: date = Field(
+    birthday: Optional[date] = Field(
         None, title="Birthday", description="생년월일", example="1994-06-07"
     )
-    gender: str = Field(None, title="Gender", description="성별", example="male")
-    target_weight: float = Field(
+    gender: Optional[str] = Field(None, title="Gender", description="성별", example="male")
+    target_weight: Optional[float] = Field(
         None,
-        alias="targetWeight",
+        serialization_alias="targetWeight",
         title="Target Weight",
         description="목표 체중",
         example=65.0,
         ge=0.0,
     )
-    blood_type: str = Field(
-        None, alias="bloodType", title="Blood Type", description="혈액형", example="B"
+    blood_type: Optional[str] = Field(
+        None, serialization_alias="bloodType", title="Blood Type", description="혈액형", example="B"
     )
 
 

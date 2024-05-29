@@ -42,4 +42,3 @@ def create_jwt_access_and_refresh_tokens(*, social_id: int) -> JWTCreate:
     refresh_token = create_jwt_token(subject=social_id, expires_delta=refresh_token_expires)
     return JWTCreate(access_token=access_token, refresh_token=refresh_token)
 
-# def get_access_token(*, social_id)

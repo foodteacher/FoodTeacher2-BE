@@ -13,5 +13,5 @@ class JWTCreate(BaseModel):
 
 class JWTResp(BaseModel):
     access_token: str = Field(
-        ..., alias="accessToken", title="Access Token", description="JWT Access Token"
+        ..., serialization_alias="accessToken", title="Access Token", description="JWT Access Token"
     )

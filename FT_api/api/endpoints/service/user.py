@@ -26,7 +26,16 @@ settings = get_setting()
     response_model=UserResp,
 )
 def get_user_info(current_user: User = Depends(get_current_user)):
-    return current_user
+    user_data = UserResp(
+        name=current_user.name,
+        height=current_user.height,
+        weight=current_user.weight,
+        birthday=current_user.birthday,
+        gender=current_user.gender,
+        target_weight=current_user.target_weight,
+        blood_type=current_user.blood_type,
+    )
+    return user_data
 
 
 @router.patch("/regist", response_model=JWTResp)
@@ -41,7 +50,7 @@ def register_user(
     update_data["jwt_refresh_token"] = jwt.refresh_token
     crud_user.update(db, db_obj=current_user, obj_in=update_data)
 
-    content = JWTResp(accessToken=jwt.access_token)
+    content = JWTResp(access_token=jwt.access_token)
     response = JSONResponse(
         status_code=status.HTTP_200_OK, content=content.model_dump()
     )
