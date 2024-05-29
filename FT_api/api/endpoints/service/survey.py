@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Body
+from fastapi import APIRouter, Depends, HTTPException, Response, Body, Query
 
 from sqlalchemy.orm import Session
 
@@ -11,10 +11,12 @@ from FT_api.schemas.survey import (
     QuestionRespSchema,
     SurveyRespSchema,
     SurveyAnswerReqSchema,
+    QuestionReadRespSchema,
 )
 from FT_api.core.config import get_setting
 from FT_api.db.session import get_db
 from FT_api.api.depends import get_current_user
+
 
 router = APIRouter()
 settings = get_setting()
@@ -156,3 +158,52 @@ def save_answers(
 
     db.commit()
     return Response(content="success")
+
+
+@router.get("/question", response_model=QuestionReadRespSchema)
+def get_question(
+    survey_id: int = Query(..., validation_alias="surveyId"),
+    question_id: int = Query(..., validation_alias="questionId"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+
+    question = (
+        db.query(Question)
+        .filter_by(survey_id=survey_id, question_id=question_id)
+        .first()
+    )
+
+    option_list = db.query(Option).filter_by(question_id=question_id).all()
+
+    answers = (
+        db.query(UserAnswers)
+        .filter(
+            UserAnswers.user_id == current_user.id, UserAnswers.survey_id == survey_id
+        )
+        .all()
+    )
+
+    answer_dict = {answer.option_id: answer for answer in answers}
+
+    question_data = QuestionReadRespSchema(
+        question_id=question.id,
+        text=question.text,
+        page_number=question.page_number,
+        options=[
+            OptionRespSchema(
+                option_id=option.id,
+                text=option.text,
+                selected=option.id in answer_dict,
+                next_question_id=option.next_question_id,
+            )
+            for option in option_list
+        ],
+    )
+
+    return question_data
+
+
+# @router.post("")
+# def create_survey(serialized_data: SurveyCreateReqSchema):
+#     return
