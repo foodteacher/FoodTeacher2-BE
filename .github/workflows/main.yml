@@ -2,9 +2,9 @@ name: Build and Push
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/foodteacher-be-2:${{ github.sha }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/foodteacher-be-dev:${{ github.sha }}
         
     - name: Update docker image name
       run: |
@@ -40,7 +40,7 @@ jobs:
         git config --global user.name "gracehpark0120"
         git clone https://${{ secrets.GIT_TOKEN }}@github.com/foodteacher/devops.git
         cd devops/be
-        sed -i "s|gracehpark/foodteacher-be-2:.*|gracehpark/foodteacher-be-2:${{ github.sha }}|g" be-2-deployment.yaml
+        sed -i "s|gracehpark/foodteacher-be-dev:.*|gracehpark/foodteacher-be-dev:${{ github.sha }}|g" be-dev.yaml
         git commit -am "Update Docker Image Name"
         git push
     
@@ -49,6 +49,6 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       uses: Ilshidur/action-discord@master
       with:
-        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }}-2 has been deployed.'
+        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }}-dev has been deployed.'
   
    
