@@ -38,6 +38,7 @@ class Survey(Base):
     answers: Mapped[List["UserAnswers"]] = relationship(
         "UserAnswers", back_populates="survey"
     )
+    total_page: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
 class Question(Base):

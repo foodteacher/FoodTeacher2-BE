@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Body, Query
+from fastapi import APIRouter, Depends, HTTPException, Response, Body, Query, Path
 
 from sqlalchemy.orm import Session
 
@@ -160,52 +160,66 @@ def save_answers(
     return Response(content="success")
 
 
-@router.get("/question/", response_model=QuestionReadRespSchema)
-def get_question(
-    survey_id: int = Query(..., alias="surveyId"),
-    question_id: int = Query(..., alias="questionId"),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    '''
-    질문 특정 질문을 조회
-    '''
-    question = (
-        db.query(Question)
-        .filter_by(survey_id=survey_id, id=question_id)
-        .first()
-    )
+# @router.get("/question/", response_model=QuestionReadRespSchema)
+# def get_question(
+#     survey_id: int = Query(..., alias="surveyId"),
+#     question_id: int = Query(..., alias="questionId"),
+#     current_user: User = Depends(get_current_user),
+#     db: Session = Depends(get_db),
+# ):
+#     '''
+#     질문 특정 질문을 조회
+#     '''
+#     question = (
+#         db.query(Question)
+#         .filter_by(survey_id=survey_id, id=question_id)
+#         .first()
+#     )
 
-    option_list = db.query(Option).filter_by(question_id=question_id).all()
+#     option_list = db.query(Option).filter_by(question_id=question_id).all()
 
-    answers = (
-        db.query(UserAnswers)
-        .filter(
-            UserAnswers.user_id == current_user.id, UserAnswers.survey_id == survey_id
-        )
-        .all()
-    )
+#     answers = (
+#         db.query(UserAnswers)
+#         .filter(
+#             UserAnswers.user_id == current_user.id, UserAnswers.survey_id == survey_id
+#         )
+#         .all()
+#     )
 
-    answer_dict = {answer.option_id: answer for answer in answers}
+#     answer_dict = {answer.option_id: answer for answer in answers}
 
-    question_data = QuestionReadRespSchema(
-        question_id=question.id,
-        text=question.text,
-        page_number=question.page_number,
-        options=[
-            OptionRespSchema(
-                option_id=option.id,
-                text=option.text,
-                selected=option.id in answer_dict,
-                next_question_id=option.next_question_id,
+#     question_data = QuestionReadRespSchema(
+#         question_id=question.id,
+#         text=question.text,
+#         page_number=question.page_number,
+#         options=[
+#             OptionRespSchema(
+#                 option_id=option.id,
+#                 text=option.text,
+#                 selected=option.id in answer_dict,
+#                 next_question_id=option.next_question_id,
+#             )
+#             for option in option_list
+#         ],
+#     )
+
+#     return question_data
+
+
+@router.get("/regist/{page_num}", response_model=List[QuestionReadRespSchema])
+def get_regist_survey_by_page_num(page_num: int = Path(..., alias="pageNum"), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    survey = db.query(Survey).filter_by(title="기본 설문")
+    question_list = db.query(Question).filter_by(survey_id=survey.id, page_num=page_num).all()
+    
+    resp_data_list = []
+    for question in question_list:
+        option_list = db.query(Option).filter_by(question_id=question.id).all()
+        resp_data_list.append(
+            QuestionReadRespSchema(
+                question_id=question.id,
+                text=question.text,
+                page_number=
             )
-            for option in option_list
-        ],
-    )
+        )
 
-    return question_data
-
-
-# @router.post("")
-# def create_survey(serialized_data: SurveyCreateReqSchema):
-#     return
+    return
