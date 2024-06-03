@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Body, Query, Path
+from fastapi import APIRouter, Depends, HTTPException, Response, Body, Query, status
 
 from sqlalchemy.orm import Session
 
@@ -80,7 +80,7 @@ def get_survey(
     return survey_resp
 
 
-@router.post("/{survey_id}/answers")
+@router.post("/{survey_id}/answers/")
 def save_answers(
     survey_id: int,
     user_answers: List[SurveyAnswerReqSchema] = Body(
@@ -89,15 +89,6 @@ def save_answers(
             {
                 "questionId": 1,
                 "optionIdList": [1],
-            },
-            {
-                "questionId": 2,
-                "optionIdList": [7, 10],
-            },
-            {
-                "questionId": 3,
-                "optionIdList": [],
-                "textAnswer": {"optionId": 1, "answer": "answer1"},
             },
             {
                 "questionId": 4,
@@ -206,20 +197,136 @@ def save_answers(
 #     return question_data
 
 
-@router.get("/regist/{page_num}", response_model=List[QuestionReadRespSchema])
-def get_regist_survey_by_page_num(page_num: int = Path(..., alias="pageNum"), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    survey = db.query(Survey).filter_by(title="기본 설문")
-    question_list = db.query(Question).filter_by(survey_id=survey.id, page_num=page_num).all()
-    
-    resp_data_list = []
-    for question in question_list:
+def get_survey_data(
+    question_id_list: List[int], current_user: User, survey: Survey, db: Session
+):
+    res = []
+    questions = db.query(Question).filter(Question.id.in_(question_id_list)).all()
+    for question in questions:
         option_list = db.query(Option).filter_by(question_id=question.id).all()
-        resp_data_list.append(
+
+        answers = (
+            db.query(UserAnswers)
+            .filter(
+                UserAnswers.user_id == current_user.id,
+                UserAnswers.survey_id == survey.id,
+                UserAnswers.question_id.in_(question_id_list),
+            )
+            .all()
+        )
+
+        answer_dict = {answer.option_id: answer for answer in answers}
+
+        res.append(
             QuestionReadRespSchema(
                 question_id=question.id,
                 text=question.text,
-                page_number=
+                total_page=survey.total_page,
+                options=[
+                    OptionRespSchema(
+                        option_id=option.id,
+                        text=option.text,
+                        selected=option.id in answer_dict,
+                    )
+                    for option in option_list
+                ],
             )
         )
+    if len(res) > 1:
+        return res[:-1]
+    return res
 
-    return
+
+@router.get("/regist/", response_model=List[QuestionReadRespSchema])
+def get_regist_survey_by_page_num(
+    page_num: int = Query(..., alias="pageNum"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    survey = db.query(Survey).filter_by(title="회원가입 설문").first()
+
+    if not survey:
+        raise HTTPException(status_code=404, detail="Survey not found")
+
+    pre_page_num = page_num - 1
+
+    pre_question = (
+        db.query(Question)
+        .filter_by(survey_id=survey.id, page_number=pre_page_num)
+        .order_by(Question.order.desc())
+        .first()
+    )
+
+    page_num_question_list = db.query(Question).filter_by(page_number=page_num).all()
+    page_num_question_id_list = [q.id for q in page_num_question_list]
+
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    if not pre_question:
+        return get_survey_data(
+            question_id_list=page_num_question_id_list,
+            current_user=current_user,
+            survey=survey,
+            db=db,
+        )
+
+    pre_answer_list = (
+        db.query(UserAnswers)
+        .filter(
+            UserAnswers.user_id == current_user.id,
+            UserAnswers.survey_id == survey.id,
+            UserAnswers.question_id.in_(
+                db.query(Question.id).filter_by(page_number=pre_page_num)
+            )
+        )
+        .all()
+    )
+
+    current_page_answer_list = (
+        db.query(UserAnswers)
+        .filter(
+            UserAnswers.user_id == current_user.id,
+            UserAnswers.survey_id == survey.id,
+            UserAnswers.question_id.in_(
+                db.query(Question.id).filter_by(page_number=page_num)
+            )
+        )
+        .all()
+    )
+
+    pre_answer_dic = {answer.option_id: answer for answer in pre_answer_list}
+    req_page_answer_dic = {answer.question_id: answer.option_id for answer in current_page_answer_list}
+
+    start_question_id = None
+    for option in pre_question.options:
+        if option.id in pre_answer_dic:
+            start_question_id = option.next_question_id
+            break
+    else:
+        if not start_question_id:
+            start_question_id = page_num_question_id_list[0]
+    
+    next_question_id_list = [start_question_id]
+    next_question_id = start_question_id
+
+    while next_question_id in page_num_question_id_list:
+        if not req_page_answer_dic:
+            next_question_id = (
+                db.query(Question)
+                .filter_by(id=next_question_id)
+                .first()
+                .options[0]
+                .next_question_id
+            )
+        else:
+            option_id = req_page_answer_dic[next_question_id]
+            next_question_id = (
+                db.query(Option).filter_by(id=option_id).first().next_question_id
+            )
+
+        next_question_id_list.append(next_question_id)
+    return get_survey_data(
+        question_id_list=next_question_id_list,
+        current_user=current_user,
+        survey=survey,
+        db=db,
+    )

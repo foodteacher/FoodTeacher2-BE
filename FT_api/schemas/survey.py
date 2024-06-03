@@ -30,13 +30,6 @@ class OptionRespSchema(BaseModel):
     selected: Optional[bool] = Field(
         None, title="Selected", description="문항 선택 여부", example=True
     )
-    next_question_id: Optional[int] = Field(
-        None,
-        serialization_alias="nextQuesionId",
-        title="Next Question ID",
-        description="현재 문항 선택에 따른 다음 문제 ID",
-        example=2,
-    )
 
 
 class QuestionRespSchema(BaseModel):
@@ -49,13 +42,6 @@ class QuestionRespSchema(BaseModel):
     )
     text: str = Field(
         ..., title="Text", description="문제", example="다음 중 기자가 한 말은?"
-    )
-    page_number: int = Field(
-        ...,
-        serialization_alias="pageNumber",
-        title="Page Number",
-        description="문제가 있는 페이지",
-        example=3,
     )
     options: List[OptionRespSchema]
 
@@ -97,6 +83,13 @@ class SurveyAnswerReqSchema(BaseModel):
 
 
 class QuestionReadRespSchema(QuestionRespSchema):
+    total_page: int = Field(
+        ...,
+        serialization_alias="totalPage",
+        title="Total Page",
+        description="총 페이지 수",
+        example=6
+    )
     pass
 
 
