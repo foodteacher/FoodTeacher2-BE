@@ -12,6 +12,11 @@ from FT_api.schemas.survey import (
     SurveyRespSchema,
     SurveyAnswerReqSchema,
     QuestionReadRespSchema,
+    SurveyRegisterResultRespSchema,
+    HealthInfoRespSchema,
+    DiseaseInfoRespSchema,
+    TakenMedicationInfoRespSchema,
+    HealthIndexRespSchema,
 )
 from FT_api.core.config import get_setting
 from FT_api.db.session import get_db
@@ -57,7 +62,10 @@ def get_survey_data(
                 ],
             )
         )
-    if len(res) > 1:
+
+    if len(question_id_list) == 1:
+        return res
+    if len(res) != len(question_id_list) - 1:
         return res[:-1]
     return res
 
@@ -100,7 +108,7 @@ def get_registered_survey_by_page_num(
             UserAnswers.survey_id == survey.id,
             UserAnswers.question_id.in_(
                 db.query(Question.id).filter_by(page_number=pre_page_num)
-            )
+            ),
         )
         .all()
     )
@@ -112,13 +120,15 @@ def get_registered_survey_by_page_num(
             UserAnswers.survey_id == survey.id,
             UserAnswers.question_id.in_(
                 db.query(Question.id).filter_by(page_number=page_num)
-            )
+            ),
         )
         .all()
     )
 
     pre_answer_dic = {answer.option_id: answer for answer in pre_answer_list}
-    req_page_answer_dic = {answer.question_id: answer.option_id for answer in current_page_answer_list}
+    req_page_answer_dic = {
+        answer.question_id: answer.option_id for answer in current_page_answer_list
+    }
 
     start_question_id = None
     for option in pre_question.options:
@@ -128,7 +138,7 @@ def get_registered_survey_by_page_num(
     else:
         if not start_question_id:
             start_question_id = page_num_question_id_list[0]
-    
+
     next_question_id_list = [start_question_id]
     next_question_id = start_question_id
 
@@ -214,6 +224,160 @@ def get_survey(
     return survey_resp
 
 
+@router.get("/register/result", response_model=SurveyRegisterResultRespSchema)
+def get_register_survey_result(
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    """
+    **회원가입 설문 결과 조회**
+    """
+    survey = db.query(Survey).filter_by(title="회원가입 설문").first()
+
+    health_info = {}
+    disease_info = {}
+    taken_medication_info = {}
+    health_index = {}
+    for question_num in range(1, 12):
+        user_answers = (
+        db.query(UserAnswers)
+        .filter_by(
+            user_id=current_user.id,
+            survey_id=survey.id,
+            question_id=question_num,
+        )
+        .all()
+    )
+        if not user_answers:
+            pass
+
+        if question_num != 8:
+            answer = ""
+            for user_answer in user_answers:
+                if not answer:
+                    answer += user_answer.answer
+                else:
+                    answer += ", " + user_answer.answer
+        else:
+            answer_list = [user_answer.answer for user_answer in user_answers]
+
+        if question_num == 1:
+            health_info["health_goal"] = answer
+            pass
+        if question_num == 2:
+            health_info["health_check_up_cycle"] = answer
+            pass
+        if question_num == 3:
+            health_info["smoking"] = answer
+            pass
+        if question_num == 4:
+            disease_info["my_disease"] = answer
+            pass
+        if question_num == 5:
+            disease_info["direct_family_disease"] = answer
+            pass
+        if question_num == 6:
+            taken_medication_info["is_long_term"] = user_answer.answer
+            pass
+        if question_num == 7:
+            taken_medication_info["reason"] = answer
+            pass
+        if question_num == 8:
+            taken_medication_info["detail"] = answer_list
+            pass
+        if question_num == 9:
+            taken_medication_info["reason"] = answer
+            pass
+        if question_num == 10:
+            health_index["stress"] = answer
+            pass
+        if question_num == 11:
+            health_index["health_management"] = answer
+
+    health_info = HealthInfoRespSchema(**health_info)
+    disease_info = DiseaseInfoRespSchema(**disease_info)
+    taken_medication_info = TakenMedicationInfoRespSchema(**taken_medication_info)
+    health_index = HealthIndexRespSchema(**health_index)
+    res = SurveyRegisterResultRespSchema(
+        health_info=health_info,
+        disease_info=disease_info,
+        taken_medication_info=taken_medication_info,
+        health_index=health_index,
+    )
+    return res
+
+
+@router.post("/register/answers")
+def save_register_survey_answers(
+    user_answers: List[SurveyAnswerReqSchema] = Body(
+        ...,
+        example=[
+            {
+                "questionId": 1,
+                "optionIdList": [1],
+            },
+            {
+                "questionId": 4,
+                "optionIdList": [22, 25],
+                "textAnswer": {"optionId": 4, "answer": "answer2"},
+            },
+        ],
+    ),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    **유저의 설문 답변을 저장**
+    # textAnswer는 "직접 입력할래요"의 답변을 저장
+    """
+    survey = db.query(Survey).filter_by(title="회원가입 설문").first()
+    survey_id = survey.id
+    for user_answer in user_answers:
+        db_user_answers = (
+            db.query(UserAnswers)
+            .filter_by(
+                user_id=current_user.id,
+                survey_id=survey_id,
+                question_id=user_answer.question_id,
+            )
+            .all()
+        )
+
+        # 기존 응답 삭제
+        for db_user_answer in db_user_answers:
+            db.delete(db_user_answer)
+        db.commit()
+
+        # 새로운 응답 생성
+        for option_id in user_answer.option_id_list:
+            new_answer = UserAnswers(
+                user_id=current_user.id,
+                survey_id=survey_id,
+                question_id=user_answer.question_id,
+                option_id=option_id,
+                type=(
+                    1 if len(user_answer.option_id_list) > 1 else 0
+                ),  # 여러 개의 응답인지 확인
+                answer=db.query(Option).filter_by(id=option_id).first().text,
+            )
+            db.add(new_answer)
+
+        if user_answer.text_answer:
+            new_answer = UserAnswers(
+                user_id=current_user.id,
+                survey_id=survey_id,
+                question_id=user_answer.question_id,
+                option_id=user_answer.text_answer.get("optionId"),
+                answer=user_answer.text_answer.get("answer", ""),
+                type=(
+                    2 if not user_answer.question_id == 8 else 3
+                ),  # '직접 입력할래요' 유형으로 설정
+            )
+            db.add(new_answer)
+
+    db.commit()
+    return Response(content="success")
+
+
 @router.post("/{survey_id}/answers/")
 def save_answers(
     survey_id: int,
@@ -283,51 +447,3 @@ def save_answers(
 
     db.commit()
     return Response(content="success")
-
-
-# @router.get("/question/", response_model=QuestionReadRespSchema)
-# def get_question(
-#     survey_id: int = Query(..., alias="surveyId"),
-#     question_id: int = Query(..., alias="questionId"),
-#     current_user: User = Depends(get_current_user),
-#     db: Session = Depends(get_db),
-# ):
-#     '''
-#     질문 특정 질문을 조회
-#     '''
-#     question = (
-#         db.query(Question)
-#         .filter_by(survey_id=survey_id, id=question_id)
-#         .first()
-#     )
-
-#     option_list = db.query(Option).filter_by(question_id=question_id).all()
-
-#     answers = (
-#         db.query(UserAnswers)
-#         .filter(
-#             UserAnswers.user_id == current_user.id, UserAnswers.survey_id == survey_id
-#         )
-#         .all()
-#     )
-
-#     answer_dict = {answer.option_id: answer for answer in answers}
-
-#     question_data = QuestionReadRespSchema(
-#         question_id=question.id,
-#         text=question.text,
-#         page_number=question.page_number,
-#         options=[
-#             OptionRespSchema(
-#                 option_id=option.id,
-#                 text=option.text,
-#                 selected=option.id in answer_dict,
-#                 next_question_id=option.next_question_id,
-#             )
-#             for option in option_list
-#         ],
-#     )
-
-#     return question_data
-
-
