@@ -62,8 +62,8 @@ def get_survey_data(
     return res
 
 
-@router.get("/regist", response_model=List[QuestionReadRespSchema])
-def get_regist_survey_by_page_num(
+@router.get("/register", response_model=List[QuestionReadRespSchema])
+def get_registered_survey_by_page_num(
     page_num: int = Query(..., alias="pageNum"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),

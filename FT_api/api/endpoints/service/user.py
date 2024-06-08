@@ -38,7 +38,7 @@ def get_user_info(current_user: User = Depends(get_current_user)):
     return user_data
 
 
-@router.patch("/regist", response_model=JWTResp)
+@router.patch("/register", response_model=JWTResp)
 def register_user(
     update_data: UserUpdateReq,
     current_user: User = Depends(get_current_user),
