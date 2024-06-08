@@ -217,6 +217,78 @@ def get_survey(
     return survey_resp
 
 
+@router.post("/register/answers")
+def save_register_survey_answers(
+    user_answers: List[SurveyAnswerReqSchema] = Body(
+        ...,
+        example=[
+            {
+                "questionId": 1,
+                "optionIdList": [1],
+            },
+            {
+                "questionId": 4,
+                "optionIdList": [22, 25],
+                "textAnswer": {"optionId": 4, "answer": "answer2"},
+            },
+        ],
+    ),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    **유저의 설문 답변을 저장**
+    # textAnswer는 "직접 입력할래요"의 답변을 저장
+    """
+    survey = db.query(Survey).filter_by(title="회원가입 설문").first()
+    survey_id = survey.id
+    for user_answer in user_answers:
+        db_user_answers = (
+            db.query(UserAnswers)
+            .filter_by(
+                user_id=current_user.id,
+                survey_id=survey_id,
+                question_id=user_answer.question_id,
+            )
+            .all()
+        )
+
+        # 기존 응답 삭제
+        for db_user_answer in db_user_answers:
+            db.delete(db_user_answer)
+        db.commit()
+
+        # 새로운 응답 생성
+        for option_id in user_answer.option_id_list:
+            new_answer = UserAnswers(
+                user_id=current_user.id,
+                survey_id=survey_id,
+                question_id=user_answer.question_id,
+                option_id=option_id,
+                type=(
+                    1 if len(user_answer.option_id_list) > 1 else 0
+                ),  # 여러 개의 응답인지 확인
+                answer=db.query(Option).filter_by(id=option_id).first().text,
+            )
+            db.add(new_answer)
+
+        if user_answer.text_answer:
+            new_answer = UserAnswers(
+                user_id=current_user.id,
+                survey_id=survey_id,
+                question_id=user_answer.question_id,
+                option_id=user_answer.text_answer.get("optionId"),
+                answer=user_answer.text_answer.get("answer", ""),
+                type=(
+                    2 if not user_answer.question_id == 8 else 3
+                ),  # '직접 입력할래요' 유형으로 설정
+            )
+            db.add(new_answer)
+
+    db.commit()
+    return Response(content="success")
+
+
 @router.post("/{survey_id}/answers/")
 def save_answers(
     survey_id: int,
