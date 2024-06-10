@@ -65,7 +65,9 @@ def get_survey_data(
 
     if len(question_id_list) == 1:
         return res
+
     if len(res) != len(question_id_list) - 1:
+
         return res[:-1]
     return res
 
