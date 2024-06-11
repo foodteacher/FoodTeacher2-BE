@@ -1,10 +1,14 @@
-name: Build and Push
+name: Build and Push BE v2
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      start:
+        description: 'start'     
+        required: false
+        default: 'start'
 
 jobs:
   build:
@@ -23,7 +27,14 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
+
+    - name: Get image tag(verion)
+      id: image
+      run: |
+        VERSION=$(git rev-parse --short HEAD)
+        echo VERSION=$VERSION
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
     - name: build and push
       if: success()
       uses: docker/build-push-action@v3
@@ -33,22 +44,29 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/foodteacher-be-2:${{ github.sha }}
         
+    - name: Discord notification on build failure
+      if: failure()
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      uses: Ilshidur/action-discord@master
+      with:
+        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }}-2 build failed.'
+
     - name: Update docker image name
       run: |
         git init
         git config --global user.email "gracehpark@naver.com"
         git config --global user.name "gracehpark0120"
-        git clone https://${{ secrets.GIT_TOKEN }}@github.com/foodteacher/devops.git
-        cd devops/be
-        sed -i "s|gracehpark/foodteacher-be-2:.*|gracehpark/foodteacher-be-2:${{ github.sha }}|g" be-2-deployment.yaml
-        git commit -am "Update Docker Image Name"
+        git clone https://${{ secrets.GIT_TOKEN }}@github.com/foodteacher/foodteacher-helm.git
+        cd foodteacher-helm/apps/foodteacher-be
+        sed -i '/v2_image:/,/tag:/ s/tag: ".*"/tag: "${{ steps.image.outputs.version }}"/' values.yaml
+        git commit -am "Update BE-v2 Docker Image Name"
         git push
-    
+
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       uses: Ilshidur/action-discord@master
       with:
-        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }}-2 has been deployed.'
+        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
   
-   
