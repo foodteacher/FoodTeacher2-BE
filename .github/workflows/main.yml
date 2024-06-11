@@ -42,7 +42,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/foodteacher-be-2:${{ github.sha }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/foodteacher-be-2:${{ steps.image.outputs.version }}
         
     - name: Discord notification on build failure
       if: failure()
