@@ -45,7 +45,7 @@ def get_survey_data(
             .all()
         )
 
-        answer_dict = {answer.option_id: answer for answer in answers}
+        answer_dict = {answer.option_id: answer.answer for answer in answers}
 
         res.append(
             QuestionReadRespSchema(
@@ -55,8 +55,9 @@ def get_survey_data(
                 options=[
                     OptionRespSchema(
                         option_id=option.id,
-                        text=option.text,
+                        text=answer_dict[option.id] if option.id in answer_dict else option.text,
                         selected=option.id in answer_dict,
+                        is_costom=True if option.text == "직접 입력할래요" else False
                     )
                     for option in option_list
                 ],
@@ -128,7 +129,7 @@ def get_registered_survey_by_page_num(
     )
 
     pre_answer_dic = {answer.option_id: answer for answer in pre_answer_list}
-    req_page_answer_dic = {
+    current_page_ans_dic = {
         answer.question_id: answer.option_id for answer in current_page_answer_list
     }
 
@@ -145,7 +146,7 @@ def get_registered_survey_by_page_num(
     next_question_id = start_question_id
 
     while next_question_id in page_num_question_id_list:
-        if not req_page_answer_dic:
+        if not current_page_ans_dic:
             next_question_id = (
                 db.query(Question)
                 .filter_by(id=next_question_id)
@@ -154,7 +155,7 @@ def get_registered_survey_by_page_num(
                 .next_question_id
             )
         else:
-            option_id = req_page_answer_dic[next_question_id]
+            option_id = current_page_ans_dic[next_question_id]
             next_question_id = (
                 db.query(Option).filter_by(id=option_id).first().next_question_id
             )
@@ -199,7 +200,7 @@ def get_survey(
         .all()
     )
 
-    answer_dict = {answer.option_id: answer for answer in answers}
+    answer_dict = {answer.option_id: answer.text for answer in answers}
 
     questions_resp = [
         QuestionRespSchema(
@@ -209,9 +210,9 @@ def get_survey(
             options=[
                 OptionRespSchema(
                     option_id=option.id,
-                    text=option.text,
+                    text=answer_dict[option.id] if option.id in answer_dict else option.text,
                     selected=option.id in answer_dict,
-                    next_question_id=option.next_question_id,
+                    is_costom=True if option.text == "직접 입력할래요" else False
                 )
                 for option in question.options
             ],

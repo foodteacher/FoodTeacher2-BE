@@ -73,7 +73,6 @@ def downgrade() -> None:
     op.add_column('users', sa.Column('jwt_refresh_token', mysql.VARCHAR(length=255), nullable=True))
     op.add_column('users', sa.Column('user_social_id', mysql.VARCHAR(length=255), nullable=True))
     op.drop_column('users', 'tartget_weight')
-    op.drop_column('users', 'jwt_rfresh_token')
     op.drop_column('users', 'user_id')
     op.add_column('options', sa.Column('survey_question_id', mysql.INTEGER(), autoincrement=False, nullable=False))
     op.drop_constraint(None, 'options', type_='foreignkey')
