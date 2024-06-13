@@ -30,8 +30,8 @@ class OptionRespSchema(BaseModel):
     selected: Optional[bool] = Field(
         None, title="Selected", description="문항 선택 여부", example=True
     )
-    is_costom: bool = Field(
-        ..., serialization_alias="isCostom", title="Is Costom", description="직접 입력한 문항인지", example=True
+    is_custom: bool = Field(
+        ..., serialization_alias="isCustom", title="Is Custom", description="직접 입력한 문항인지", example=True
     )
 
 

@@ -57,7 +57,7 @@ def get_survey_data(
                         option_id=option.id,
                         text=answer_dict[option.id] if option.id in answer_dict else option.text,
                         selected=option.id in answer_dict,
-                        is_costom=True if option.text == "직접 입력할래요" else False
+                        is_custom=True if option.text == "직접 입력할래요" else False
                     )
                     for option in option_list
                 ],
@@ -212,7 +212,7 @@ def get_survey(
                     option_id=option.id,
                     text=answer_dict[option.id] if option.id in answer_dict else option.text,
                     selected=option.id in answer_dict,
-                    is_costom=True if option.text == "직접 입력할래요" else False
+                    is_custom=True if option.text == "직접 입력할래요" else False
                 )
                 for option in question.options
             ],
