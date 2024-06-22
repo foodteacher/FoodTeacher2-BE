@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from FT_api.api.urls import api_router
+from FT_api.core.redis import r
 
 FT_api = FastAPI()
 
@@ -22,4 +23,5 @@ FT_api.include_router(api_router)
 
 @FT_api.get("/")
 def read_root():
+    print("redis is ", r.ping())
     return "hello, 팩트폭행단~!"
