@@ -178,53 +178,53 @@ def get_surveys(db: Session = Depends(get_db)):
     return surveys
 
 
-# @router.get("/{survey_id}", response_model=SurveyRespSchema)
-# def get_survey(
-#     survey_id: int,
-#     current_user: User = Depends(get_current_user),
-#     db: Session = Depends(get_db),
-# ):
-#     """
-#     **현재 유저가 진행할 특정 설문 조회**
-#     """
-#     survey = db.query(Survey).filter(Survey.id == survey_id).first()
-#     if not survey:
-#         raise HTTPException(status_code=404, detail="Survey not found")
+@router.get("/{survey_id}", response_model=SurveyRespSchema)
+def get_survey(
+    survey_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    **현재 유저가 진행할 특정 설문 조회**
+    """
+    survey = db.query(Survey).filter(Survey.id == survey_id).first()
+    if not survey:
+        raise HTTPException(status_code=404, detail="Survey not found")
 
-#     questions = db.query(Question).filter(Question.survey_id == survey_id).all()
-#     answers = (
-#         db.query(UserAnswers)
-#         .filter(
-#             UserAnswers.user_id == current_user.id, UserAnswers.survey_id == survey_id
-#         )
-#         .all()
-#     )
+    questions = db.query(Question).filter(Question.survey_id == survey_id).all()
+    answers = (
+        db.query(UserAnswers)
+        .filter(
+            UserAnswers.user_id == current_user.id, UserAnswers.survey_id == survey_id
+        )
+        .all()
+    )
 
-#     answer_dict = {answer.option_id: answer.text for answer in answers}
+    answer_dict = {answer.option_id: answer.text for answer in answers}
 
-#     questions_resp = [
-#         QuestionRespSchema(
-#             question_id=question.id,
-#             text=question.text,
-#             page_number=question.page_number,
-#             options=[
-#                 OptionRespSchema(
-#                     option_id=option.id,
-#                     text=answer_dict[option.id] if option.id in answer_dict else option.text,
-#                     selected=option.id in answer_dict,
-#                     is_custom=True if option.text == "직접 입력할래요" else False
-#                 )
-#                 for option in question.options
-#             ],
-#         )
-#         for question in questions
-#     ]
+    questions_resp = [
+        QuestionRespSchema(
+            question_id=question.id,
+            text=question.text,
+            page_number=question.page_number,
+            options=[
+                OptionRespSchema(
+                    option_id=option.id,
+                    text=answer_dict[option.id] if option.id in answer_dict else option.text,
+                    selected=option.id in answer_dict,
+                    is_custom=True if option.text == "직접 입력할래요" else False
+                )
+                for option in question.options
+            ],
+        )
+        for question in questions
+    ]
 
-#     survey_resp = SurveyRespSchema(
-#         survey_id=survey.id, title=survey.title, questions=questions_resp
-#     )
+    survey_resp = SurveyRespSchema(
+        survey_id=survey.id, title=survey.title, questions=questions_resp
+    )
 
-#     return survey_resp
+    return survey_resp
 
 
 @router.get("/register/result", response_model=SurveyRegisterResultRespSchema)
@@ -450,4 +450,3 @@ def save_answers(
 
     db.commit()
     return Response(content="success")
- 
