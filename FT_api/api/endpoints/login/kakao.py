@@ -11,6 +11,7 @@ from FT_api.schemas.user import UserCreate, UserUpdate
 from FT_api.crud.user import crud_user
 from FT_api.core.security import create_jwt_access_and_refresh_tokens
 from FT_api.crud.user import crud_user
+from FT_api.core.redis import get_redis_client
 
 
 router = APIRouter()
@@ -25,11 +26,12 @@ REST_API_KEY = settings.KAKAO_REST_API_KEY
 
 
 # 엑세스 토큰을 저장할 변수
-@router.get("/auth/callback",)
-def kakao_auth(
+@router.get("/auth/callback")
+async def kakao_auth(
     code: str,
     state: str | None,
     db: Session = Depends(get_db),
+    redis_client=Depends(get_redis_client),
 ):
 
     kakao_token = get_kakao_token(code)
@@ -40,26 +42,30 @@ def kakao_auth(
     kakao_id = get_kakao_id(kakao_access_token)
     user = crud_user.get_by_social_id(db, social_id=kakao_id)
 
-    jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)  
-    url = f'http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}'
-    if state == 'dev':
-        url = f'http://localhost:3000/auth?accessToken={jwt.access_token}'
-
-
     if not user:
         new_user = UserCreate(
             user_social_id=kakao_id,
             provider="Kakao",
-            access_token=kakao_access_token,
-            refresh_token=kakao_refresh_token,
+            social_access_token=kakao_access_token,
+            social_refresh_token=kakao_refresh_token,
         )
         crud_user.create(db, obj_in=new_user)
 
+    user_data = UserUpdate(
+        social_access_token=kakao_access_token, social_refresh_token=kakao_refresh_token
+    )
+    crud_user.update(db, db_obj=user, obj_in=user_data)
 
-        return RedirectResponse(url=url)
+    jwt = create_jwt_access_and_refresh_tokens(social_id=kakao_id)
+    await redis_client.setex(
+        f"jwt_refresh_token@{kakao_id}",
+        settings.REFRESH_TOKEN_EXPIRE_MINUTES,
+        jwt.refresh_token,
+    )
 
-    update_data = UserUpdate(refresh_token=jwt.refresh_token)
-    crud_user.update(db, db_obj=user, obj_in=update_data)
+    url = f"http://v2.foodteacher.xyz/auth?accessToken={jwt.access_token}"
+    if state == "dev":
+        url = f"http://localhost:3000/auth?accessToken={jwt.access_token}"
 
     return RedirectResponse(url=url)
 

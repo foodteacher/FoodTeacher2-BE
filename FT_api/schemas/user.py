@@ -4,7 +4,9 @@ from datetime import date
 
 
 class UserBase(BaseModel):
-    name: Optional[str] = Field(None, title="Name", description="이름", example="홍길동")
+    name: Optional[str] = Field(
+        None, title="Name", description="이름", example="홍길동"
+    )
     height: Optional[float] = Field(
         None,
         title="Height",
@@ -22,7 +24,9 @@ class UserBase(BaseModel):
     birthday: Optional[date] = Field(
         None, title="Birthday", description="생년월일", example="1994-06-07"
     )
-    gender: Optional[str] = Field(None, title="Gender", description="성별", example="male")
+    gender: Optional[str] = Field(
+        None, title="Gender", description="성별", example="male"
+    )
     target_weight: Optional[float] = Field(
         None,
         serialization_alias="targetWeight",
@@ -32,7 +36,11 @@ class UserBase(BaseModel):
         ge=0.0,
     )
     blood_type: Optional[str] = Field(
-        None, serialization_alias="bloodType", title="Blood Type", description="혈액형", example="B"
+        None,
+        serialization_alias="bloodType",
+        title="Blood Type",
+        description="혈액형",
+        example="B",
     )
 
 
@@ -43,11 +51,11 @@ class UserCreate(UserBase):
     provider: str = Field(
         ..., title="Provider", description="소셜 로그인", examples="Naver"
     )
-    access_token: str = Field(
-        ..., title="Access Token", description="Social Access Token"
+    social_access_token: str = Field(
+        ..., title="Social Access Token", description="Social Access Token"
     )
-    refresh_token: str = Field(
-        ..., title="Refresh Token", description="Social Refresh Token"
+    social_refresh_token: str = Field(
+        ..., title="Social Refresh Token", description="Social Refresh Token"
     )
 
 
@@ -56,14 +64,11 @@ class UserRead(UserBase):
 
 
 class UserUpdate(UserBase):
-    access_token: str = Field(
-        None, title="Access Token", description="Social Access Token"
+    social_access_token: str = Field(
+        None, title="Social Access Token", description="Social Access Token"
     )
-    refresh_token: str = Field(
-        None, title="Refresh Token", description="Social Refresh Token"
-    )
-    jwt_refresh_token: str = Field(
-        None, title="JWT Refresh Token", description="JWT Refresh Token"
+    social_refresh_token: str = Field(
+        None, title="SocialRefresh Token", description="Social Refresh Token"
     )
 
 
@@ -73,4 +78,3 @@ class UserResp(UserBase):
 
 class UserUpdateReq(UserBase):
     pass
-
